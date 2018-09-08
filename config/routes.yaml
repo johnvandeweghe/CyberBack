@@ -1,0 +1,8 @@
+game_create:
+    path: /game
+    controller: App\Controller\GameController::create
+    methods: [POST]
+
+index:
+    path: /
+    controller: App\Controller\DefaultController::index
