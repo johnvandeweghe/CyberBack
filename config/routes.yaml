@@ -1,6 +1,26 @@
 game_create:
     path: /game
-    controller: App\Controller\GameController::create
+    controller: App\Controller\GameController::createGame
+    methods: [POST]
+
+game_get:
+    path: /game/{gameId}
+    controller: App\Controller\GameController::getGame
+    methods: [GET]
+
+units_get:
+    path: /units/{gameId}
+    controller: App\Controller\GameController::getUnits
+    methods: [GET]
+
+map_get:
+    path: /map/{mapId}
+    controller: App\Controller\GameController::getMap
+    methods: [GET]
+
+player_create:
+    path: /player
+    controller: App\Controller\GameController::createPlayer
     methods: [POST]
 
 index:
