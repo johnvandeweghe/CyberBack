@@ -3,8 +3,10 @@ namespace App\Controller;
 
 use App\Entity\Game;
 use App\Entity\Player;
-use App\Entity\Unit;
+use App\Formatter\GameFormatter;
+use App\Formatter\UnitFormatter;
 use App\MapData\MapDataRetriever;
+use App\MapData\UnitInitializer;
 use App\Repository\GameRepository;
 use App\Repository\MapRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -38,7 +40,7 @@ class GameController
         $this->gameRepository = $gameRepository;
     }
 
-    public function createGame(MapRepository $mapRepository): Response
+    public function createGame(MapRepository $mapRepository, GameFormatter $gameFormatter): Response
     {
         $map = $mapRepository->chooseRandomMap(2);
         $game = new Game($map);
@@ -46,10 +48,10 @@ class GameController
         $this->entityManager->persist($game);
         $this->entityManager->flush();
 
-        return new Response(json_encode(["id" => $game->getId()]));
+        return new Response($gameFormatter->format($game));
     }
 
-    public function getGame($gameId): Response
+    public function getGame($gameId, GameFormatter $gameFormatter): Response
     {
         $game = $this->gameRepository->find($gameId);
 
@@ -57,10 +59,14 @@ class GameController
             return new Response("Game not found", 404);
         }
 
-        return new Response(json_encode(["id" => $game->getId()]));
+        return new Response($gameFormatter->format($game));
     }
 
-    public function createPlayer(Request $request, Pusher $pusher, MapDataRetriever $mapDataRetriever): Response
+    public function createPlayer(
+        Request $request,
+        Pusher $pusher,
+        MapDataRetriever $mapDataRetriever
+    ): Response
     {
         $body = json_decode($request->getContent(), true);
 
@@ -79,32 +85,22 @@ class GameController
             return new Response("Game full", 403);
         }
 
-        $player = new Player();
-        $player->setGame($game);
-        $player->setPlayerNumber(count($game->getPlayers()) + 1);
-
-        $this->entityManager->persist($player);
-
         $mapData = $mapDataRetriever->getMapData($game->getMap()->getId());
 
         if(!$mapData) {
             return new Response("Map data not found", 500);
         }
 
-        foreach($mapData->getUnitData() as $unitDatum) {
-            if($unitDatum["playerOwner"] != $player->getPlayerNumber()){
-                continue;
-            }
+        $player = new Player();
+        $player->setGame($game);
+        $player->setPlayerNumber(count($game->getPlayers()) + 1);
 
-            $unit = new Unit();
-            $unit->setPlayer($player);
-            $unit->setSpeed($unitDatum["speed"]);
-            $unit->setHealth($unitDatum["health"]);
-            $unit->setAttack($unitDatum["attack"]);
-            $unit->setDefense($unitDatum["defense"]);
-            $unit->setMaxRange($unitDatum["maxRange"]);
-            $unit->setMinRange($unitDatum["minRange"]);
-            $unit->setUnitType($unitDatum["unitType"]);
+        $this->entityManager->persist($player);
+
+        $unitInitializer = new UnitInitializer($mapData);
+        $units = $unitInitializer->getUnitsForPlayer($player);
+
+        foreach($units as $unit) {
             $this->entityManager->persist($unit);
         }
 
@@ -121,21 +117,7 @@ class GameController
         return new Response(json_encode(["id" => $player->getId(), "playerNumber" => $player->getPlayerNumber()]));
     }
 
-    public function getMap($mapId, MapRepository $mapRepository, MapDataRetriever $mapDataRetriever) {
-        $map = $mapRepository->find($mapId);
-
-        if(!$map) {
-            return new Response("Map not found", 404);
-        }
-        $mapData = $mapDataRetriever->getMapData($map->getId());
-
-        return new Response(json_encode([
-            "tiles" => $mapData->getTiles(),
-            "width" => $mapData->getWidth()
-        ]));
-    }
-
-    public function getUnits($gameId): Response
+    public function getUnits($gameId, UnitFormatter $unitFormatter): Response
     {
         $game = $this->gameRepository->find($gameId);
 
@@ -149,20 +131,6 @@ class GameController
             $units = array_merge($player->getUnits(), $units);
         }
 
-        return new Response(json_encode(array_map(function(Unit $unit) {
-            return [
-                "attack" => $unit->getAttack(),
-                "defense" => $unit->getDefense(),
-                "health" => $unit->getHealth(),
-                "unitType" => $unit->getUnitType(),
-                "minRange" => $unit->getMinRange(),
-                "maxRange" => $unit->getMaxRange(),
-                "owner" => $unit->getPlayer()->getPlayerNumber(),
-                "coordinates" => $unit->getXPosition() && $unit->getYPosition() ? [
-                    "x" => $unit->getXPosition(),
-                    "y" => $unit->getYPosition()
-                ] : null
-            ];
-        }, $units)));
+        return new Response($unitFormatter->format($units));
     }
 }
