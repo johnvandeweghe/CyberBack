@@ -41,6 +41,28 @@ paths:
                 $ref: "#/components/schemas/Game"
         '404':
           description: The game could not be found.
+  /player:
+    post:
+      summary: Add a player to a game
+      operationId: addPlayer
+      tags: 
+        - game
+      requestBody:
+        content: 
+          'application/json':
+            schema:
+              type: object
+              properties:
+                gameId:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Player information
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Player"
   /units/{gameId}:
     get:
       summary: Get units for a game.
@@ -157,3 +179,11 @@ components:
              type: integer
            y:
              type: integer
+    Player:
+      type: object
+      required:
+       - id
+      properties:
+        id:
+          type: string
+          format: uuid
