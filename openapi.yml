@@ -8,14 +8,14 @@ paths:
   /game:
     post:
       summary: Create a game
-      operationId: createPets
+      operationId: createGame
       tags:
         - game
       responses:
         '200':
           description: The meta information about a game, including map tile data.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Game"
   /game/{gameId}:
