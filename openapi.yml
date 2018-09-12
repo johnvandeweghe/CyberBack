@@ -1,0 +1,159 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Cyber Wars API
+servers:
+  - url: No Production URL yet
+paths:
+  /game:
+    post:
+      summary: Create a game
+      operationId: createPets
+      tags:
+        - game
+      responses:
+        '200':
+          description: The meta information about a game, including map tile data.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Game"
+  /game/{gameId}:
+    get:
+      summary: Get a specific game you know the ID for.
+      operationId: listGame
+      tags:
+        - game
+      parameters:
+        - name: gameId
+          in: path
+          description: Which game's ID to retrieve
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: The meta information about a game, including map tile data.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Game"
+        '404':
+          description: The game could not be found.
+  /units/{gameId}:
+    get:
+      summary: Get units for a game.
+      operationId: listUnits
+      tags:
+        - game
+      parameters:
+        - name: gameId
+          in: path
+          description: Which game's units to retrieve
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Information about units in the current game
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Units"
+        '404':
+          description: The game could not be found.
+components:
+  schemas:
+    Game:
+      required:
+        - id
+        - map
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "602aff3a-5427-48d5-9865-6cb92bcbef54"
+        map:
+          type: object
+          required:
+            - id
+            - tiles
+          properties:
+            id: 
+              type: string
+              format: uuid
+              example: "80391e9e-5cd7-4dbc-9c71-dfca074a21e2"
+            tiles:
+              type: array
+              items:
+                type: object
+                required:
+                  - type
+                  - owner
+                properties:
+                  type:
+                    type: string
+                    example: concrete
+                  owner:
+                    type: integer
+                    format: int32
+                    example: 1
+    Units:
+      type: array
+      items:
+        $ref: "#/components/schemas/Unit"
+    Unit:
+      type: object
+      required:
+       - id
+       - attack
+       - defense
+       - health
+       - unitType
+       - minRange
+       - maxRange
+       - owner
+      properties:
+        id:
+          type: string
+          format: uuid
+        attack:
+          type: integer
+          format: int32
+          example: 8
+        defense:
+          type: integer
+          format: int32
+          example: 15
+        health:
+          type: integer
+          format: int32
+          example: 40
+        unitType:
+          type: string
+          example: magic
+        minRange:
+          type: integer
+          format: int32
+          example: 2
+        maxRange:
+          type: integer
+          format: int32
+          example: 4
+        owner:
+          type: integer
+          format: int32
+          example: 1
+        coordinates:
+         type: object
+         required:
+          - x
+          - y
+         properties:
+           x:
+             type: integer
+           y:
+             type: integer
