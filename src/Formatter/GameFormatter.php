@@ -26,6 +26,8 @@ class GameFormatter
 
         return json_encode([
             "id" => $game->getId(),
+            "playerNumber" => $game->getPlayerNumber(),
+            "turnNumber" => $game->getTurnNumber(),
             "map" => [
                 "tiles" => $mapData->getTiles(),
                 "width" => $mapData->getWidth()

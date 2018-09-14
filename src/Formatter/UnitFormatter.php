@@ -13,6 +13,7 @@ class UnitFormatter
     {
         return json_encode(array_map(function(Unit $unit) {
             return [
+                "id" => $unit->getId(),
                 "attack" => $unit->getAttack(),
                 "defense" => $unit->getDefense(),
                 "health" => $unit->getHealth(),

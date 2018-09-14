@@ -41,9 +41,17 @@ class Player
      */
     private $units;
 
+    /**
+     * @ORM\OneToMany(targetEntity="Turn", mappedBy="player")
+     * @ORM\JoinColumn(name="player_id", referencedColumnName="id")
+     * @var Turn[]
+     */
+    private $turns;
+
     public function __construct()
     {
         $this->units = new ArrayCollection();
+        $this->turns = new ArrayCollection();
     }
 
     public function getId(): ?string
@@ -93,4 +101,13 @@ class Player
     {
         return $this->units->toArray();
     }
+
+    /**
+     * @return Turn[]
+     */
+    public function getTurns(): array
+    {
+        return $this->turns->toArray();
+    }
+
 }

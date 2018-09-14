@@ -70,4 +70,43 @@ class Game
         return $this->players;
     }
 
+    public function getTurnNumber()
+    {
+        return count($this->getTurns());
+    }
+
+    public function getMostRecentTurn(): ?Turn
+    {
+        return array_reduce($this->getTurns(), function (?Turn $carry, Turn $turn): Turn {
+            if($carry === null) {
+                return $turn;
+            }
+
+            return $turn->getStartTimestamp() > $carry->getStartTimestamp() ? $turn : $carry;
+        }, null);
+    }
+
+    public function getPlayerNumber()
+    {
+        $mostRecentTurn = $this->getMostRecentTurn();
+        if($mostRecentTurn->getStatus() === Turn::STATUS_IN_PROGRESS) {
+            return $mostRecentTurn->getPlayer()->getPlayerNumber();
+        } else {
+            return ($mostRecentTurn->getPlayer()->getPlayerNumber() % $this->getMap()->getPlayerCount()) + 1;
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function getTurns(): array
+    {
+        $players = $this->getPlayers();
+        $turns = [];
+        foreach ($players as $player) {
+            $turns = array_merge($turns, $player->getTurns());
+        }
+        return $turns;
+    }
+
 }

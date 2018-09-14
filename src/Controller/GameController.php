@@ -3,12 +3,14 @@ namespace App\Controller;
 
 use App\Entity\Game;
 use App\Entity\Player;
+use App\Entity\Turn;
 use App\Formatter\GameFormatter;
 use App\Formatter\UnitFormatter;
 use App\MapData\MapDataRetriever;
 use App\MapData\UnitInitializer;
 use App\Repository\GameRepository;
 use App\Repository\MapRepository;
+use App\Repository\PlayerRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Pusher\Pusher;
 use Pusher\PusherException;
@@ -132,5 +134,38 @@ class GameController
         }
 
         return new Response($unitFormatter->format($units));
+    }
+
+    public function createTurn(Request $request, PlayerRepository $playerRepository): Response
+    {
+        $body = json_decode($request->getContent(), true);
+        $playerId = $body["playerId"] ?? null;
+        if(!$playerId) {
+            return new Response("Missing player id", Response::HTTP_BAD_REQUEST);
+        }
+
+        $player = $playerRepository->find($playerId);
+
+        if($player) {
+            return new Response("Player not found", Response::HTTP_NOT_FOUND);
+        }
+
+        $game = $player->getGame();
+
+        if($game->getPlayerNumber() !== $player->getPlayerNumber()) {
+            return new Response("Not your turn", Response::HTTP_FORBIDDEN);
+        }
+
+        $turn = new Turn();
+        $turn->setPlayer($player);
+        $turn->setStartTimestamp(new \DateTime());
+        $turn->setStatus(Turn::STATUS_IN_PROGRESS);
+        $this->entityManager->persist($turn);
+        $this->entityManager->flush();
+
+        return new Response(json_encode([
+            "id" => $turn->getId(),
+            "status" => $turn->getStatus()
+        ]));
     }
 }
