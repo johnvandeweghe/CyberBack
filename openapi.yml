@@ -1,4 +1,4 @@
-openapi: "3.0.0"
+openapi: 3.0.0
 info:
   version: 1.0.0
   title: Cyber Wars API
@@ -13,12 +13,12 @@ paths:
         - game
       responses:
         '200':
-          description: The meta information about a game, including map tile data.
+          description: 'The meta information about a game, including map tile data.'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Game"
-  /game/{gameId}:
+                $ref: '#/components/schemas/Game'
+  '/game/{gameId}':
     get:
       summary: Get a specific game you know the ID for.
       operationId: listGame
@@ -34,22 +34,22 @@ paths:
             format: uuid
       responses:
         '200':
-          description: The meta information about a game, including map tile data.
+          description: 'The meta information about a game, including map tile data.'
           content:
-            application/json:    
+            application/json:
               schema:
-                $ref: "#/components/schemas/Game"
+                $ref: '#/components/schemas/Game'
         '404':
           description: The game could not be found.
   /player:
     post:
       summary: Add a player to a game
       operationId: addPlayer
-      tags: 
+      tags:
         - game
       requestBody:
-        content: 
-          'application/json':
+        content:
+          application/json:
             schema:
               type: object
               properties:
@@ -60,10 +60,10 @@ paths:
         '200':
           description: Player information
           content:
-            application/json:    
+            application/json:
               schema:
-                $ref: "#/components/schemas/Player"
-  /units/{gameId}:
+                $ref: '#/components/schemas/Player'
+  '/units/{gameId}':
     get:
       summary: Get units for a game.
       operationId: listUnits
@@ -81,20 +81,20 @@ paths:
         '200':
           description: Information about units in the current game
           content:
-            application/json:    
+            application/json:
               schema:
-                $ref: "#/components/schemas/Units"
+                $ref: '#/components/schemas/Units'
         '404':
           description: The game could not be found.
   /turns:
     post:
       summary: Start a turn
       operationId: startTurn
-      tags: 
+      tags:
         - game
       requestBody:
-        content: 
-          'application/json':
+        content:
+          application/json:
             schema:
               type: object
               properties:
@@ -105,18 +105,18 @@ paths:
         '200':
           description: The turn that was created.
           content:
-            application/json:    
+            application/json:
               schema:
-                $ref: "#/components/schemas/Turn"
+                $ref: '#/components/schemas/Turn'
         '403':
           description: It is not your turn.
         '404':
           description: The game could not be found.
-  /turns/{turnId}:
+  '/turns/{turnId}':
     patch:
       summary: Update a turn (used to end a turn)
       operationId: updateTurn
-      tags: 
+      tags:
         - game
       parameters:
         - name: turnId
@@ -127,8 +127,8 @@ paths:
             type: string
             format: uuid
       requestBody:
-        content: 
-          'application/json':
+        content:
+          application/json:
             schema:
               type: object
               properties:
@@ -139,9 +139,9 @@ paths:
         '200':
           description: Information about units in the current game
           content:
-            application/json:    
+            application/json:
               schema:
-                $ref: "#/components/schemas/Turn"
+                $ref: '#/components/schemas/Turn'
         '403':
           description: It is not your turn.
         '404':
@@ -153,19 +153,19 @@ paths:
       tags:
         - game
       requestBody:
-        content: 
-          'application/json':
+        content:
+          application/json:
             schema:
-              $ref: "#/components/schemas/UnitAction"
+              $ref: '#/components/schemas/UnitAction'
       responses:
         '200':
           description: Information about units in the current game
           content:
-            application/json:    
+            application/json:
               schema:
-                $ref: "#/components/schemas/UnitAction"
+                $ref: '#/components/schemas/UnitAction'
         '403':
-          description: It is not your turn, or the unit is out of action points
+          description: 'It is not your turn, or the unit is out of action points'
         '404':
           description: The turn or unit could not be found.
 components:
@@ -181,25 +181,25 @@ components:
         id:
           type: string
           format: uuid
-          example: "602aff3a-5427-48d5-9865-6cb92bcbef54"
+          example: 602aff3a-5427-48d5-9865-6cb92bcbef54
         playerNumber:
           type: integer
           format: int32
           example: 1
         turnNumber:
-         type: integer
-         format: int32
-         example: 3
+          type: integer
+          format: int32
+          example: 3
         map:
           type: object
           required:
             - id
             - tiles
           properties:
-            id: 
+            id:
               type: string
               format: uuid
-              example: "80391e9e-5cd7-4dbc-9c71-dfca074a21e2"
+              example: 80391e9e-5cd7-4dbc-9c71-dfca074a21e2
             tiles:
               type: array
               items:
@@ -218,18 +218,18 @@ components:
     Units:
       type: array
       items:
-        $ref: "#/components/schemas/Unit"
+        $ref: '#/components/schemas/Unit'
     Unit:
       type: object
       required:
-       - id
-       - attack
-       - defense
-       - health
-       - unitType
-       - minRange
-       - maxRange
-       - owner
+        - id
+        - attack
+        - defense
+        - health
+        - unitType
+        - minRange
+        - maxRange
+        - owner
       properties:
         id:
           type: string
@@ -262,19 +262,19 @@ components:
           format: int32
           example: 1
         coordinates:
-         type: object
-         required:
-          - x
-          - y
-         properties:
-           x:
-             type: integer
-           y:
-             type: integer
+          type: object
+          required:
+            - x
+            - 'y'
+          properties:
+            x:
+              type: integer
+            'y':
+              type: integer
     Player:
       type: object
       required:
-       - id
+        - id
       properties:
         id:
           type: string
@@ -282,8 +282,8 @@ components:
     Turn:
       type: object
       required:
-       - id
-       - status
+        - id
+        - status
       properties:
         id:
           type: string
@@ -294,9 +294,9 @@ components:
     UnitAction:
       type: object
       required:
-       - unitId
-       - turnId
-       - type
+        - unitId
+        - turnId
+        - type
       properties:
         unitId:
           type: string
@@ -306,7 +306,7 @@ components:
           format: uuid
         type:
           type: string
-          example: "move"
+          example: move
         args:
           type: object
           description: Varies based on type
