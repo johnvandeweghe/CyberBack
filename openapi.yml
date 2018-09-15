@@ -335,11 +335,28 @@ components:
         args:
           oneOf:
            - $ref: "#/components/schemas/MoveActionArgs"
+           - $ref: "#/components/schemas/AttackActionArgs"
           description: Varies based on type
+          example:
+            path:
+             - x: 1
+               y: 2
+             - x: 2
+               y: 2
     MoveActionArgs:
       type: object
+      required:
+       - path
       properties:
        path:
          type: array
          items:
            $ref: "#/components/schemas/Coordinates"
+    AttackActionArgs:
+      type: object
+      required:
+        - targetUnitId
+      properties:
+        targetUnitId:
+          type: string
+          format: uuid
