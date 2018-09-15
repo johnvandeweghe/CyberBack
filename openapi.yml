@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  version: 1.0.0
+  version: 0.1.0
   title: Cyber Wars API
 servers:
   - url: No Production URL yet
@@ -186,10 +186,12 @@ components:
           type: integer
           format: int32
           example: 1
+          minimum: 1
         turnNumber:
           type: integer
           format: int32
           example: 3
+          minimum: 0
         map:
           type: object
           required:
@@ -211,10 +213,25 @@ components:
                   type:
                     type: string
                     example: concrete
+                    enum:
+                      - "concrete"
                   owner:
                     type: integer
                     format: int32
                     example: 1
+                    minimum: 1
+    Coordinates:
+      type: object
+      required:
+        - 'x'
+        - 'y'
+      properties:
+        'x':
+          type: integer
+          minimum: 0
+        'y':
+          type: integer
+          minimum: 0
     Units:
       type: array
       items:
@@ -238,39 +255,41 @@ components:
           type: integer
           format: int32
           example: 8
+          minimum: 0
         defense:
           type: integer
           format: int32
           example: 15
+          minimum: 0
         health:
           type: integer
           format: int32
           example: 40
+          minimum: 0
         unitType:
           type: string
           example: magic
+          enum:
+            - "magic"
+            - "swords"
+            - "guns"
         minRange:
           type: integer
           format: int32
           example: 2
+          minimum: 0
         maxRange:
           type: integer
           format: int32
           example: 4
+          minimum: 0
         owner:
           type: integer
           format: int32
           example: 1
+          minimum: 1
         coordinates:
-          type: object
-          required:
-            - x
-            - 'y'
-          properties:
-            x:
-              type: integer
-            'y':
-              type: integer
+          $ref: "#/components/schemas/Coordinates"
     Player:
       type: object
       required:
@@ -290,6 +309,9 @@ components:
           format: uuid
         status:
           type: string
+          enum:
+            - "in-progress"
+            - "turn-complete"
           example: in-progress
     UnitAction:
       type: object
@@ -306,7 +328,18 @@ components:
           format: uuid
         type:
           type: string
+          enum:
+            - "move"
+            - "attack"
           example: move
         args:
-          type: object
+          oneOf:
+           - $ref: "#/components/schemas/MoveActionArgs"
           description: Varies based on type
+    MoveActionArgs:
+      type: object
+      properties:
+       path:
+         type: array
+         items:
+           $ref: "#/components/schemas/Coordinates"
