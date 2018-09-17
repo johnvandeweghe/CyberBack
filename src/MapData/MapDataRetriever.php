@@ -20,6 +20,8 @@ class MapDataRetriever implements MapDataRetrieverInterface
      * MapDataRetriever constructor.
      * @param LoggerInterface $logger
      */
+    const ASSETS_MAPS_DIR = "../assets/maps/";
+
     public function __construct(LoggerInterface $logger)
     {
         $this->finder = Finder::create();
@@ -28,7 +30,7 @@ class MapDataRetriever implements MapDataRetrieverInterface
 
     public function getMapData(string $mapId): ?MapData
     {
-        $iterator = $this->finder->in("../maps/")->files()
+        $iterator = $this->finder->in(self::ASSETS_MAPS_DIR)->files()
             ->name($mapId . ".json")->getIterator();
         $iterator->rewind();
         /**
