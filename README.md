@@ -60,6 +60,11 @@ Note: Test server does not need to be running to run the tests.
 
 Setup is similar to development, but .env should instead be set as environment variables with production values.
 
+## Documentation
+
+See /docs/api_spec_oas3.yml for a OpenAPI Spec 3 doc describing the public API for the backend. 
+
+See [docs/implementation_guide.md](docs/implementation_guide.md) for a guide explaining how to actually use the API to play a game of CyberWars as a player client.
 
 ## Contributing
 Contributions are welcome, just drop a Pull Request.
