@@ -10,7 +10,7 @@ paths:
       summary: Create a game
       operationId: createGame
       tags:
-        - game
+        - lobby
       responses:
         '200':
           description: 'The meta information about a game, including map tile data.'
@@ -21,9 +21,9 @@ paths:
   '/game/{gameId}':
     get:
       summary: Get a specific game you know the ID for.
-      operationId: listGame
+      operationId: getGame
       tags:
-        - game
+        - lobby
       parameters:
         - name: gameId
           in: path
@@ -46,7 +46,7 @@ paths:
       summary: Add a player to a game
       operationId: addPlayer
       tags:
-        - game
+        - lobby
       requestBody:
         content:
           application/json:
@@ -66,7 +66,7 @@ paths:
   '/units/{gameId}':
     get:
       summary: Get units for a game.
-      operationId: listUnits
+      operationId: getUnits
       tags:
         - game
       parameters:
@@ -86,12 +86,35 @@ paths:
                 $ref: '#/components/schemas/Units'
         '404':
           description: The game could not be found.
+  '/unit/{unitId}':
+    get:
+      summary: Get a specific unit
+      operationId: getUnit
+      tags:
+        - game
+      parameters:
+        - name: unitId
+          in: path
+          description: Which unit to retrieve
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Information about a specific unit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unit'
+        '404':
+          description: The unit could not be found.
   /turns:
     post:
       summary: Start a turn
       operationId: startTurn
       tags:
-        - game
+        - turn
       requestBody:
         content:
           application/json:
@@ -117,7 +140,7 @@ paths:
       summary: Update a turn (used to end a turn)
       operationId: updateTurn
       tags:
-        - game
+        - turn
       parameters:
         - name: turnId
           in: path
@@ -142,6 +165,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Turn'
+        '400':
+          description: Missing turnId or set an invalid status
         '403':
           description: It is not your turn.
         '404':
@@ -151,7 +176,7 @@ paths:
       summary: Take an action as a unit on a turn.
       operationId: createUnitAction
       tags:
-        - game
+        - turn
       requestBody:
         content:
           application/json:

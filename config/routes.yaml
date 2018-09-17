@@ -1,28 +1,40 @@
-game_create:
-    path: /game
-    controller: App\Controller\GameController::createGame
-    methods: [POST]
-
-game_get:
-    path: /game/{gameId}
-    controller: App\Controller\GameController::getGame
-    methods: [GET]
-
-units_get:
-    path: /units/{gameId}
-    controller: App\Controller\GameController::getUnits
-    methods: [GET]
-
-map_get:
-    path: /map/{mapId}
-    controller: App\Controller\GameController::getMap
-    methods: [GET]
-
-player_create:
-    path: /player
-    controller: App\Controller\GameController::createPlayer
-    methods: [POST]
-
 index:
     path: /
     controller: App\Controller\DefaultController::index
+
+
+createGame:
+    path: /game
+    controller: App\Controller\LobbyController::createGame
+    methods: [POST]
+getGame:
+    path: /game/{gameId}
+    controller: App\Controller\LobbyController::getGame
+    methods: [GET]
+addPlayer:
+    path: /player
+    controller: App\Controller\LobbyController::createPlayer
+    methods: [POST]
+
+
+getUnits:
+    path: /units/{gameId}
+    controller: App\Controller\GameController::getUnits
+    methods: [GET]
+getUnit:
+    path: /unit/{unitId}
+    controller: App\Controller\GameController::getUnit
+    methods: [GET]
+
+startTurn:
+    path: /turns
+    controller: App\Controller\TurnController::createTurn
+    methods: [POST]
+updateTurn:
+    path: /turns/{turnId}
+    controller: App\Controller\TurnController::updateTurn
+    methods: [PATCH]
+createUnitAction:
+    path: /unitAction
+    controller: App\Controller\TurnController::createUnitAction
+    methods: [POST]

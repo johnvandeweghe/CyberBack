@@ -110,4 +110,9 @@ class Player
         return $this->turns->toArray();
     }
 
+    public function isTurn(): bool
+    {
+        return $this->getGame()->getPlayerNumber() === $this->getPlayerNumber();
+    }
+
 }

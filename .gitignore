@@ -7,5 +7,4 @@
 ###< symfony/framework-bundle ###
 *.iml
 .idea
-
-/composer.phar
+composer.phar

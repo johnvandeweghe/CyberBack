@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Player;
 use App\Entity\Turn;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
@@ -19,32 +20,13 @@ class TurnRepository extends ServiceEntityRepository
         parent::__construct($registry, Turn::class);
     }
 
-//    /**
-//     * @return Turn[] Returns an array of Turn objects
-//     */
-    /*
-    public function findByExampleField($value)
+    public function startTurn(Player $player, ?\DateTimeInterface $now = null): Turn
     {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('t.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
+        $turn = new Turn();
+        $turn->setPlayer($player);
+        $turn->setStartTimestamp($now !== null ?: new \DateTime());
+        $turn->setStatus(Turn::STATUS_IN_PROGRESS);
+        return $turn;
     }
-    */
 
-    /*
-    public function findOneBySomeField($value): ?Turn
-    {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }
