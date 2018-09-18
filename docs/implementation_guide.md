@@ -15,7 +15,7 @@ The server will be firing Pusher events on a channel named ```game-{gameId}```. 
 Event names will be described as they are needed, and the endpoint to poll will be described as well.
 
 ## Lobby
-The lobby secion is where you will join a game and gain all meta information needed before you can start turns.
+The lobby section is where you will join a game and gain all meta information needed before you can start turns.
 Your first goal is to get a GameID. This is a secret ID that gives you access to meta information about a game, and lets you join as a player if there is a slot available.
 ### Step 1A: Creating a game from scratch
 If you are starting a new game, you get a gameID by sending the ```createGame``` operation to the API. This will create a game, and give you that game back, which includes the gameID you will be using. Keep in mind that the returned game has all of the map tile information ready to go at this point.
@@ -26,17 +26,17 @@ Once you have the game object, you can create a player for yourself. Send the ``
 **Note:** Keep in mind that a player has both a public "number" (from 1 - max players), as well as a secret id that will be used in furture requests.
 
 ## Game
-TODO: Summary
-
-### Knowing when it's your turn
-TODO:
-- poll game for playernumber to match yours
-- listen for turn-start event on pusher channel
+This section is for actions that you may take during a game (even if it is not your turn).
 
 ### Unit Info
 TODO:
+
 ## Turns
-TODO:
+
+### Knowing when it's your turn
+You have two options for this:
+- **Polling:** Poll game using ```getGame``` and check the playerNumber, if it matches yours you can now make a turn.
+- **Pusher:** Listen for ```turn-start``` event, it will have a playerNumber field on it, if it matches yours you can make a turn.
 
 ### Starting a turn
 TODO:
