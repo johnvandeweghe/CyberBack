@@ -6,11 +6,11 @@ The game can be broken into three sections of interactions:
 2. Game
 3. Turns
 
-## The OpenAPISpec 3 file
+### The OpenAPISpec 3 file
 Throught this guide you will see references to operations and models in the API. This document will avoid going too deep into the definitions and examples of those operations and models. They are already well defined in the following document, which we will convert to Mark Down some day:
 [OAS3 File](api_spec_oas3.yml)
 
-## Polling Vs. Pusher
+### Polling Vs. Pusher
 The server will be firing Pusher events on a channel named ```game-{gameId}```. If you are a client that can listen to events on that channel, you should. Otherwise the API will always have an endpoint you can poll to get the same information, albiet less efficently.
 Event names will be described as they are needed, and the endpoint to poll will be described as well.
 
