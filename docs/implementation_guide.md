@@ -7,7 +7,7 @@ The game can be broken into three sections of interactions:
 3. Turns
 
 ### The OpenAPISpec 3 file
-Throught this guide you will see references to operations and models in the API. This document will avoid going too deep into the definitions and examples of those operations and models. They are already well defined in the following document, which we will convert to Mark Down some day:
+Throughout this guide you will see references to operations and models in the API. This document will avoid going too deep into the definitions and examples of those operations and models. They are already well defined in the following document, which we will convert to Mark Down some day:
 [OAS3 File](api_spec_oas3.yml)
 
 ### Polling Vs. Pusher
@@ -29,9 +29,11 @@ Once you have the game object, you can create a player for yourself. Send the ``
 This section is for actions that you may take during a game (even if it is not your turn).
 
 ### Unit Info
-TODO:
+You can either get all of the units with ```getUnits``` or a specific unit with ```getUnit```.
+This can be done at any time, and should be done often when polling.
 
 ## Turns
+This section describes how to do turns.
 
 ### Knowing when it's your turn
 You have two options for this:
@@ -39,8 +41,19 @@ You have two options for this:
 - **Pusher:** Listen for ```turn-start``` event, it will have a playerNumber field on it, if it matches yours you can make a turn.
 
 ### Starting a turn
-TODO:
+**Note:** Start every turn by getting all units to ensure you have an up to date game state.
+Then call ```startTurn``` to get a turnID to use in subsequent requests.
+
 ### Actions on a turn
-TODO:
+Each unit is allowed one movement and then one action. 
+
+#### Making a movement action
+To make a movement with a unit, send a ```createUnitAction``` with a type of "move" and an args of type ```MoveActionArgs```.
+Within that args object you will need to send a path your unit wants to take. This path must consist of single square adjacent only movements. No diagonals. The total number of squares moved must not exceed that unit's speed attribute.
+
+#### Attacking a unit
+To attack a unit, send a ```createUnitAction``` with a type of "attack", and the unitID you are targeting. The target unit must be within the attacking unit's attack range, following the same rules as movement to calculate distance.
+
 ### Ending a turn
-TODO:
+To end your turn, send an ```updateTurn``` request, setting the status of your turn to "turn-complete".
+**Note:** As stated above, after each turn you will receive a pusher event to tell you who is next.
