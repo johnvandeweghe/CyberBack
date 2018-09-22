@@ -6,6 +6,8 @@ use App\Repository\GameRepository;
 use App\Repository\PlayerRepository;
 use App\Repository\TurnRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Pusher\Pusher;
+use Pusher\PusherException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -63,7 +65,7 @@ class TurnController
         ]));
     }
 
-    public function updateTurn(Request $request, TurnRepository $turnRepository): Response
+    public function updateTurn(Request $request, TurnRepository $turnRepository, Pusher $pusher): Response
     {
         $body = json_decode($request->getContent(), true);
         $turnId = $body["turnId"] ?? null;
@@ -91,15 +93,25 @@ class TurnController
         $this->entityManager->persist($turn);
         $this->entityManager->flush();
 
+        $game = $turn->getPlayer()->getGame();
+
+        try {
+            $pusher->trigger("game-" . $game->getId(), "turn-start", [
+                "playerNumber" => $game->getPlayerNumber()
+            ]);
+        } catch (PusherException $e) {
+        }
+
         return new Response(json_encode([
             "id" => $turn->getId(),
             "status" => $turn->getStatus()
         ]));
     }
 
-    //TODO:
-    public function createUnitAction()
+    public function createUnitAction(Request $request)
     {
-
+        $body = json_decode($request->getContent(), true);
+        $turnId = $body["turnId"] ?? null;
+        $status = $body["status"] ?? null;
     }
 }

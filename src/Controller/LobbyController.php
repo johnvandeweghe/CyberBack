@@ -107,8 +107,9 @@ class LobbyController
 
         if($player->getPlayerNumber() == $game->getMap()->getPlayerCount()) {
             try {
-                $pusher->trigger("game-{$game->getId()}", "game-start",
-                    ["mapId" => $game->getMapId()]);
+                $pusher->trigger("game-" . $game->getId(), "turn-start", [
+                    "playerNumber" => $game->getPlayerNumber()
+                ]);
             } catch (PusherException $e) {
             }
         }

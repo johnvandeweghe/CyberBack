@@ -181,7 +181,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UnitAction'
+              $ref: '#/components/schemas/UnitActionParams'
       responses:
         '200':
           description: Information about units in the current game
@@ -339,6 +339,38 @@ components:
             - "turn-complete"
           example: in-progress
     UnitAction:
+      type: object
+      required:
+        - unitId
+        - turnId
+        - type
+        - status
+        - affectedUnitIds
+      properties:
+        unitId:
+          type: string
+          format: uuid
+        turnId:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum:
+            - "move"
+            - "attack"
+          example: move
+        status:
+          type: string
+          enum:
+           - "success"
+           - "failed"
+          example: "success"
+        affectedUnitIds:
+          type: array
+          items:
+            type: integer
+            format: int32
+    UnitActionParams:
       type: object
       required:
         - unitId

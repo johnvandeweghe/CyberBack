@@ -53,6 +53,7 @@ Within that args object you will need to send a path your unit wants to take. Th
 
 #### Attacking a unit
 To attack a unit, send a ```createUnitAction``` with a type of "attack", and the unitID you are targeting. The target unit must be within the attacking unit's attack range, following the same rules as movement to calculate distance.
+To see the effects of your action, do a ```getUnit``` on each unit that is in the response's affectedUnitIds list.
 
 ### Ending a turn
 To end your turn, send an ```updateTurn``` request, setting the status of your turn to "turn-complete".
