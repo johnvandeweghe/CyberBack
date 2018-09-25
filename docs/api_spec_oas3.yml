@@ -308,6 +308,21 @@ components:
           format: int32
           example: 4
           minimum: 0
+        currentAP:
+          type: integer
+          format: int32
+          example: 5
+          minimum: 0
+        maxAP:
+          type: integer
+          format: int32
+          example: 5
+          minimum: 0
+        apRegen:
+          type: integer
+          format: int32
+          example: 5
+          minimum: 0
         owner:
           type: integer
           format: int32
