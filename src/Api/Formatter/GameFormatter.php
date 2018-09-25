@@ -1,5 +1,5 @@
 <?php
-namespace App\Formatter;
+namespace App\Api\Formatter;
 
 use App\Entity\Game;
 use App\MapData\MapDataRetriever;

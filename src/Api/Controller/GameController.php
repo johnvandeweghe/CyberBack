@@ -1,7 +1,7 @@
 <?php
-namespace App\Controller;
+namespace App\Api\Controller;
 
-use App\Formatter\UnitFormatter;
+use App\Api\Formatter\UnitFormatter;
 use App\Repository\GameRepository;
 use App\Repository\UnitRepository;
 use Doctrine\ORM\EntityManagerInterface;

@@ -1,40 +1,40 @@
 index:
     path: /
-    controller: App\Controller\DefaultController::index
+    controller: App\Api\Controller\DefaultController::index
 
 
 createGame:
     path: /game
-    controller: App\Controller\LobbyController::createGame
+    controller: App\Api\Controller\LobbyController::createGame
     methods: [POST]
 getGame:
     path: /game/{gameId}
-    controller: App\Controller\LobbyController::getGame
+    controller: App\Api\Controller\LobbyController::getGame
     methods: [GET]
 addPlayer:
     path: /player
-    controller: App\Controller\LobbyController::createPlayer
+    controller: App\Api\Controller\LobbyController::createPlayer
     methods: [POST]
 
 
 getUnits:
     path: /units/{gameId}
-    controller: App\Controller\GameController::getUnits
+    controller: App\Api\Controller\GameController::getUnits
     methods: [GET]
 getUnit:
     path: /unit/{unitId}
-    controller: App\Controller\GameController::getUnit
+    controller: App\Api\Controller\GameController::getUnit
     methods: [GET]
 
 startTurn:
     path: /turns
-    controller: App\Controller\TurnController::createTurn
+    controller: App\Api\Controller\TurnController::createTurn
     methods: [POST]
 updateTurn:
     path: /turns/{turnId}
-    controller: App\Controller\TurnController::updateTurn
+    controller: App\Api\Controller\TurnController::updateTurn
     methods: [PATCH]
 createUnitAction:
     path: /unitAction
-    controller: App\Controller\TurnController::createUnitAction
+    controller: App\Api\Controller\TurnController::createUnitAction
     methods: [POST]

@@ -1,9 +1,9 @@
 <?php
-namespace App\Controller;
+namespace App\Api\Controller;
 
 use App\Entity\Game;
 use App\Entity\Player;
-use App\Formatter\GameFormatter;
+use App\Api\Formatter\GameFormatter;
 use App\MapData\MapDataRetriever;
 use App\MapData\UnitInitializer;
 use App\Repository\GameRepository;

@@ -39,6 +39,9 @@ class UnitInitializer
             $unit->setDefense($unitDatum["defense"]);
             $unit->setMaxRange($unitDatum["maxRange"]);
             $unit->setMinRange($unitDatum["minRange"]);
+            $unit->setMaxActionPoints($unitDatum["maxAP"]);
+            $unit->setCurrentActionPoints($unitDatum["currentAP"]);
+            $unit->setActionPointRegenRate($unitDatum["apRegen"]);
             $unit->setUnitType($unitDatum["unitType"]);
 
             return $unit;

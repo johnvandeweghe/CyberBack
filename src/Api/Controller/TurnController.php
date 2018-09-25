@@ -1,5 +1,5 @@
 <?php
-namespace App\Controller;
+namespace App\Api\Controller;
 
 use App\Entity\Turn;
 use App\Repository\GameRepository;
@@ -13,6 +13,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class TurnController
 {
+    const UNIT_ACTION_MOVE = 'move';
+    const UNIT_ACTION_ATTACK = 'attack';
     /**
      * @var EntityManagerInterface
      */
@@ -112,6 +114,26 @@ class TurnController
     {
         $body = json_decode($request->getContent(), true);
         $turnId = $body["turnId"] ?? null;
-        $status = $body["status"] ?? null;
+        $unitId = $body["unitId"] ?? null;
+        $type = $body["type"] ?? null;
+        $args = $body["args"] ?? null;
+
+        if(!$turnId || !$unitId) {
+            return new Response("Missing turn id or unit id", Response::HTTP_BAD_REQUEST);
+        }
+
+        if(!$type) {
+            return new Response("Missing action type", Response::HTTP_BAD_REQUEST);
+        }
+
+        switch($type) {
+            case self::UNIT_ACTION_MOVE:
+
+                break;
+            case self::UNIT_ACTION_ATTACK:
+                break;
+            default:
+                return new Response("Unknown Type", Response::HTTP_NOT_FOUND);
+        }
     }
 }

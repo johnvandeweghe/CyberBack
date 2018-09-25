@@ -52,6 +52,21 @@ class Unit
     private $speed;
 
     /**
+     * @ORM\Column(type="integer")
+     */
+    private $maxActionPoints;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $currentActionPoints;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $actionPointRegenRate;
+
+    /**
      * @ORM\Column(type="integer", nullable=true)
      */
     private $x_position;
@@ -159,6 +174,39 @@ class Unit
     {
         $this->speed = $speed;
 
+        return $this;
+    }
+
+    public function getMaxActionPoints()
+    {
+        return $this->maxActionPoints;
+    }
+
+    public function setMaxActionPoints($maxActionPoints)
+    {
+        $this->maxActionPoints = $maxActionPoints;
+        return $this;
+    }
+
+    public function getCurrentActionPoints()
+    {
+        return $this->currentActionPoints;
+    }
+
+    public function setCurrentActionPoints($currentActionPoints)
+    {
+        $this->currentActionPoints = $currentActionPoints;
+        return $this;
+    }
+
+    public function getActionPointRegenRate()
+    {
+        return $this->actionPointRegenRate;
+    }
+
+    public function setActionPointRegenRate($actionPointRegenRate)
+    {
+        $this->actionPointRegenRate = $actionPointRegenRate;
         return $this;
     }
 
