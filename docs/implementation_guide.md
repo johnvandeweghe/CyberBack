@@ -45,14 +45,15 @@ You have two options for this:
 Then call ```startTurn``` to get a turnID to use in subsequent requests.
 
 ### Actions on a turn
-Each unit is allowed one movement and then one action. 
+Each unit is allowed a certain amount of Action Points. Each action will use a number of points based on the action. A unit recovers a defined amount of points at the beginning of a player's turn.
+You may end your turn before using all of your action points, but units have a maximum amount of points that can hold.
 
 #### Making a movement action
 To make a movement with a unit, send a ```createUnitAction``` with a type of "move" and an args of type ```MoveActionArgs```.
-Within that args object you will need to send a path your unit wants to take. This path must consist of single square adjacent only movements. No diagonals. The total number of squares moved must not exceed that unit's speed attribute.
+Within that args object you will need to send a path your unit wants to take. This path must consist of single square adjacent only movements. No diagonals. Each unit may move up to their speed with a single action point. The total number of squares moved must not exceed that unit's alloted action points.
 
 #### Attacking a unit
-To attack a unit, send a ```createUnitAction``` with a type of "attack", and the unitID you are targeting. The target unit must be within the attacking unit's attack range, following the same rules as movement to calculate distance.
+To attack a unit, send a ```createUnitAction``` with a type of "attack", and the unitID you are targeting. The target unit must be within the attacking unit's attack range, following the same rules as movement to calculate distance. Attack actions use your unit's attack stat number of action points.
 To see the effects of your action, do a ```getUnit``` on each unit that is in the response's affectedUnitIds list.
 
 ### Ending a turn
