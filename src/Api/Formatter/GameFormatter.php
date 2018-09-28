@@ -3,6 +3,7 @@ namespace App\Api\Formatter;
 
 use App\Entity\Game;
 use App\MapData\MapDataRetriever;
+use App\MapData\Tile;
 
 class GameFormatter
 {
@@ -29,7 +30,12 @@ class GameFormatter
             "playerNumber" => $game->getPlayerNumber(),
             "turnNumber" => $game->getTurnNumber(),
             "map" => [
-                "tiles" => $mapData->getTiles(),
+                "tiles" => array_map(function(Tile $tile) {
+                    return [
+                        "owner" => $tile->getPlayerOwner(),
+                        "type" => $tile->getType(),
+                    ];
+		}, $mapData->getTiles()),
                 "width" => $mapData->getWidth()
             ]
         ]);

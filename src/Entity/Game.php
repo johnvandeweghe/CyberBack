@@ -89,6 +89,9 @@ class Game
     public function getPlayerNumber()
     {
         $mostRecentTurn = $this->getMostRecentTurn();
+        if(!$mostRecentTurn) {
+            return 1;
+        }
         if($mostRecentTurn->getStatus() === Turn::STATUS_IN_PROGRESS) {
             return $mostRecentTurn->getPlayer()->getPlayerNumber();
         } else {

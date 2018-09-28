@@ -80,7 +80,7 @@ class LobbyController
         }
 
 
-        if($game->getPlayers() >= $game->getMap()->getPlayerCount()) {
+        if(count($game->getPlayers()) >= $game->getMap()->getPlayerCount()) {
             return new Response("Game full", 403);
         }
 
