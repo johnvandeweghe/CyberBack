@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 class Turn
 {
     public const STATUS_IN_PROGRESS = "in-progress";
-    public const STATUS_COMPLETED = "turn-completed";
+    public const STATUS_COMPLETED = "turn-complete";
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue(strategy="UUID")
@@ -40,7 +40,7 @@ class Turn
      */
     private $player;
 
-    public function getId(): ?int
+    public function getId(): ?string
     {
         return $this->id;
     }

@@ -9,6 +9,7 @@ use App\MapData\UnitInitializer;
 use App\Repository\GameRepository;
 use App\Repository\MapRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Pusher\Pusher;
 use Pusher\PusherException;
 use Symfony\Component\HttpFoundation\Request;
@@ -64,7 +65,8 @@ class LobbyController
     public function createPlayer(
         Request $request,
         Pusher $pusher,
-        MapDataRetriever $mapDataRetriever
+	MapDataRetriever $mapDataRetriever,
+	LoggerInterface $logger
     ): Response
     {
         $body = json_decode($request->getContent(), true);
@@ -93,6 +95,7 @@ class LobbyController
         $player = new Player();
         $player->setGame($game);
         $player->setPlayerNumber(count($game->getPlayers()) + 1);
+	$logger->debug("player count" . count($game->getPlayers()));
 
         $this->entityManager->persist($player);
 
@@ -105,12 +108,18 @@ class LobbyController
 
         $this->entityManager->flush();
 
+	// $logger->debug("player number: " . $player->getPlayerNumber());
+	// $logger->debug("map player count: " . $game->getMap()->getPlayerCount());
         if($player->getPlayerNumber() == $game->getMap()->getPlayerCount()) {
             try {
-                $pusher->trigger("game-" . $game->getId(), "turn-start", [
+                // $logger->debug("pushing to: " . "game-" . $game->getId());
+		$pusher->setLogger($logger);
+                $ret = $pusher->trigger("game-" . $game->getId(), "turn-start", [
                     "playerNumber" => $game->getPlayerNumber()
                 ]);
+		// $logger->debug("ret: " . $ret);
             } catch (PusherException $e) {
+                $logger.warn("failing horribly because you didnt define any pusher stuff: " . $e->getMessage());
             }
         }
 

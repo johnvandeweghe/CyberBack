@@ -48,7 +48,7 @@ class TurnController
 
         $player = $playerRepository->find($playerId);
 
-        if($player) {
+        if(!$player) {
             return new Response("Player not found", Response::HTTP_NOT_FOUND);
         }
 
@@ -67,10 +67,10 @@ class TurnController
         ]));
     }
 
-    public function updateTurn(Request $request, TurnRepository $turnRepository, Pusher $pusher): Response
+    public function updateTurn(?string $turnId, Request $request, TurnRepository $turnRepository, Pusher $pusher): Response
     {
         $body = json_decode($request->getContent(), true);
-        $turnId = $body["turnId"] ?? null;
+        // $turnId = $body["turnId"] ?? null;
         $status = $body["status"] ?? null;
 
         if(!$turnId) {
@@ -82,7 +82,7 @@ class TurnController
 
         $turn = $turnRepository->find($turnId);
 
-        if($turn) {
+        if(!$turn) {
             return new Response("Turn not found", Response::HTTP_NOT_FOUND);
         }
 
