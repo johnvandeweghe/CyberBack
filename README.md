@@ -10,23 +10,23 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-
-#### get php7.2
-```bash
-sudo apt-get install python-software-properties
-sudo add-apt-repository ppa:ondrej/php
-sudo apt-get update
-sudo apt-get install -y php7.2
-```
-
+- PHP 7.2+
 - Composer https://getcomposer.org/download/
-- PHP 7.2
 - Some PHP extensions you probably have (composer will tell you if you don't when installing)
   - php-curl
   - php-mbstring
   - php-zip
   - php-xml
-  - php7.2-sqlite3
+  - php-sqlite3
+
+#### Getting PHP 7.2 on ubuntu
+Use ondrej's PPA:
+```bash
+sudo apt-get install python-software-properties
+sudo add-apt-repository ppa:ondrej/php
+sudo apt-get update
+sudo apt-get install -y php7.2 php-curl php-mbstring php-zip php-xml php-sqlite3
+```
 
 ### Installing
 
@@ -42,15 +42,10 @@ Example .env:
 ```ini
 APP_ENV=dev
 APP_SECRET=eb106562e67ed9f80b2c2ed8e2d9a5dd
-DATABASE_URL=sqlite:///tmp/db_name
+DATABASE_URL=sqlite:////tmp/db_name
 PUSHER_APP_ID=
 PUSHER_KEY=
 PUSHER_SECRET=
-```
-
-In this example, we use sqlite, on a linux system, run
-```bash
-sudo apt install sqlite3
 ```
 
 Then you can setup your database by running the migrations with the following:
