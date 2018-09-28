@@ -6,6 +6,7 @@ use App\Repository\GameRepository;
 use App\Repository\PlayerRepository;
 use App\Repository\TurnRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Pusher\Pusher;
 use Pusher\PusherException;
 use Symfony\Component\HttpFoundation\Request;
@@ -67,10 +68,15 @@ class TurnController
         ]));
     }
 
-    public function updateTurn(?string $turnId, Request $request, TurnRepository $turnRepository, Pusher $pusher): Response
+    public function updateTurn(
+        ?string $turnId,
+        Request $request,
+        TurnRepository $turnRepository,
+        Pusher $pusher,
+        LoggerInterface $logger
+    ): Response
     {
         $body = json_decode($request->getContent(), true);
-        // $turnId = $body["turnId"] ?? null;
         $status = $body["status"] ?? null;
 
         if(!$turnId) {
@@ -98,10 +104,12 @@ class TurnController
         $game = $turn->getPlayer()->getGame();
 
         try {
+            $pusher->setLogger($logger);
             $pusher->trigger("game-" . $game->getId(), "turn-start", [
                 "playerNumber" => $game->getPlayerNumber()
             ]);
         } catch (PusherException $e) {
+            $logger->warning("Exception while firing pusher event: " . $e->getMessage());
         }
 
         return new Response(json_encode([
