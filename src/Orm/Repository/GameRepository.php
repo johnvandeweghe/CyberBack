@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repository;
+namespace App\Orm\Repository;
 
-use App\Entity\Game;
+use App\Orm\Entity\Game;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 

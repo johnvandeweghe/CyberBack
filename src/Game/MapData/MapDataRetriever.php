@@ -1,5 +1,5 @@
 <?php
-namespace App\MapData;
+namespace App\Game\MapData;
 
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Finder\Finder;
@@ -20,18 +20,26 @@ class MapDataRetriever implements MapDataRetrieverInterface
      * MapDataRetriever constructor.
      * @param LoggerInterface $logger
      */
-    const ASSETS_MAPS_DIR = "../assets/maps/";
+    const ASSETS_MAPS_DIR = "../../assets/maps/";
 
-    public function __construct(LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger, ?Finder $finder = null)
     {
-        $this->finder = Finder::create();
+        if ($finder) {
+            $this->finder = $finder;
+        } else {
+            $this->finder = Finder::create();
+            $this->finder->in(self::ASSETS_MAPS_DIR)->files();
+        }
         $this->logger = $logger;
     }
 
+    /**
+     * @param string $mapId
+     * @return MapData|null
+     */
     public function getMapData(string $mapId): ?MapData
     {
-        $iterator = $this->finder->in(self::ASSETS_MAPS_DIR)->files()
-            ->name($mapId . ".json")->getIterator();
+        $iterator = $this->finder->name($mapId . ".json")->getIterator();
         $iterator->rewind();
         /**
          * @var $mapDataFileInfo SplFileInfo

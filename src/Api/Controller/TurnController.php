@@ -1,66 +1,49 @@
 <?php
 namespace App\Api\Controller;
 
-use App\Entity\Turn;
-use App\Repository\GameRepository;
-use App\Repository\PlayerRepository;
-use App\Repository\TurnRepository;
-use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
-use Pusher\Pusher;
-use Pusher\PusherException;
+use App\Game\Exception\OutOfTurnException;
+use App\Game\Manager;
+use App\Game\ManagerInterface;
+use App\Orm\Entity\Turn;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class TurnController
 {
-    const UNIT_ACTION_MOVE = 'move';
-    const UNIT_ACTION_ATTACK = 'attack';
     /**
-     * @var EntityManagerInterface
+     * @var ManagerInterface
      */
-    private $entityManager;
-    /**
-     * @var GameRepository
-     */
-    private $gameRepository;
+    private $manager;
 
     /**
      * GameController constructor.
-     * @param EntityManagerInterface $entityManager
-     * @param GameRepository $gameRepository
+     * @param ManagerInterface $manager
      */
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        GameRepository $gameRepository
-    )
+    public function __construct(ManagerInterface $manager)
     {
-        $this->entityManager = $entityManager;
-        $this->gameRepository = $gameRepository;
+        $this->manager = $manager;
     }
 
-    public function createTurn(Request $request, PlayerRepository $playerRepository, TurnRepository $turnRepository): Response
+    public function createTurn(Request $request): Response
     {
         $body = json_decode($request->getContent(), true);
         $playerId = $body["playerId"] ?? null;
+
         if(!$playerId) {
             return new Response("Missing player id", Response::HTTP_BAD_REQUEST);
         }
 
-        $player = $playerRepository->find($playerId);
+        $player = $this->manager->getPlayer($playerId);
 
         if(!$player) {
             return new Response("Player not found", Response::HTTP_NOT_FOUND);
         }
 
-        if(!$player->isTurn()) {
+        try {
+            $turn = $this->manager->startTurn($player);
+        } catch (OutOfTurnException $e) {
             return new Response("Not your turn", Response::HTTP_FORBIDDEN);
         }
-
-        $turn = $turnRepository->startTurn($player);
-
-        $this->entityManager->persist($turn);
-        $this->entityManager->flush();
 
         return new Response(json_encode([
             "id" => $turn->getId(),
@@ -68,13 +51,7 @@ class TurnController
         ]));
     }
 
-    public function updateTurn(
-        ?string $turnId,
-        Request $request,
-        TurnRepository $turnRepository,
-        Pusher $pusher,
-        LoggerInterface $logger
-    ): Response
+    public function updateTurn(?string $turnId, Request $request): Response
     {
         $body = json_decode($request->getContent(), true);
         $status = $body["status"] ?? null;
@@ -86,30 +63,16 @@ class TurnController
             return new Response("Bad status value", Response::HTTP_BAD_REQUEST);
         }
 
-        $turn = $turnRepository->find($turnId);
+        $turn = $this->manager->getTurn($turnId);
 
         if(!$turn) {
             return new Response("Turn not found", Response::HTTP_NOT_FOUND);
         }
 
-        if($turn->getStatus() !== Turn::STATUS_IN_PROGRESS) {
-            return new Response("Not your turn", Response::HTTP_FORBIDDEN);
-        }
-
-        $turn->setStatus(Turn::STATUS_COMPLETED);
-
-        $this->entityManager->persist($turn);
-        $this->entityManager->flush();
-
-        $game = $turn->getPlayer()->getGame();
-
         try {
-            $pusher->setLogger($logger);
-            $pusher->trigger("game-" . $game->getId(), "turn-start", [
-                "playerNumber" => $game->getPlayerNumber()
-            ]);
-        } catch (PusherException $e) {
-            $logger->warning("Exception while firing pusher event: " . $e->getMessage());
+            $this->manager->endTurn($turn);
+        } catch (OutOfTurnException $e) {
+            return new Response("Not your turn", Response::HTTP_FORBIDDEN);
         }
 
         return new Response(json_encode([
@@ -118,6 +81,10 @@ class TurnController
         ]));
     }
 
+    /**
+     * @param Request $request
+     * @return Response
+     */
     public function createUnitAction(Request $request)
     {
         $body = json_decode($request->getContent(), true);
@@ -135,10 +102,10 @@ class TurnController
         }
 
         switch($type) {
-            case self::UNIT_ACTION_MOVE:
+            case Manager::UNIT_ACTION_MOVE:
 
                 break;
-            case self::UNIT_ACTION_ATTACK:
+            case Manager::UNIT_ACTION_ATTACK:
                 break;
             default:
                 return new Response("Unknown Type", Response::HTTP_NOT_FOUND);

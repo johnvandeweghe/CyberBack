@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repository;
+namespace App\Orm\Repository;
 
-use App\Entity\Map;
+use App\Orm\Entity\Map;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 

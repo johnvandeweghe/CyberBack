@@ -1,9 +1,9 @@
 <?php
 namespace App\Api\Formatter;
 
-use App\Entity\Game;
-use App\MapData\MapDataRetriever;
-use App\MapData\Tile;
+use App\Orm\Entity\Game;
+use App\Game\MapData\MapDataRetriever;
+use App\Game\MapData\Tile;
 
 class GameFormatter
 {

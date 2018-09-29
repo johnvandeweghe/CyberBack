@@ -1,7 +1,7 @@
 <?php
 namespace App\Api\Formatter;
 
-use App\Entity\Unit;
+use App\Orm\Entity\Unit;
 
 class UnitFormatter
 {

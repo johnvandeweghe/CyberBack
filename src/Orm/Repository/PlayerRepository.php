@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repository;
+namespace App\Orm\Repository;
 
-use App\Entity\Player;
+use App\Orm\Entity\Player;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 

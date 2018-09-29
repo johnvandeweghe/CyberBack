@@ -1,5 +1,5 @@
 <?php
-namespace App\MapData;
+namespace App\Game\MapData;
 
 interface MapDataRetrieverInterface
 {

@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Repository;
+namespace App\Orm\Repository;
 
-use App\Entity\Player;
-use App\Entity\Turn;
+use App\Orm\Entity\Player;
+use App\Orm\Entity\Turn;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -18,15 +18,6 @@ class TurnRepository extends ServiceEntityRepository
     public function __construct(RegistryInterface $registry)
     {
         parent::__construct($registry, Turn::class);
-    }
-
-    public function startTurn(Player $player, ?\DateTimeInterface $now = null): Turn
-    {
-        $turn = new Turn();
-        $turn->setPlayer($player);
-        $turn->setStartTimestamp($now !== null ?: new \DateTime());
-        $turn->setStatus(Turn::STATUS_IN_PROGRESS);
-        return $turn;
     }
 
 }

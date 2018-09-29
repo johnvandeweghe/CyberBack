@@ -12,7 +12,8 @@
         "symfony/framework-bundle": "*",
         "symfony/orm-pack": "^1.0",
         "symfony/serializer": "*",
-        "symfony/yaml": "*"
+        "symfony/yaml": "*",
+      "ext-json": "*"
     },
     "require-dev": {
         "symfony/dotenv": "*",

@@ -2,56 +2,41 @@
 namespace App\Api\Controller;
 
 use App\Api\Formatter\UnitFormatter;
-use App\Repository\GameRepository;
-use App\Repository\UnitRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Game\ManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class GameController
 {
     /**
-     * @var EntityManagerInterface
+     * @var ManagerInterface
      */
-    private $entityManager;
-    /**
-     * @var GameRepository
-     */
-    private $gameRepository;
+    private $manager;
 
     /**
      * GameController constructor.
-     * @param EntityManagerInterface $entityManager
-     * @param GameRepository $gameRepository
+     * @param ManagerInterface $manager
      */
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        GameRepository $gameRepository
-    )
+    public function __construct(ManagerInterface $manager)
     {
-        $this->entityManager = $entityManager;
-        $this->gameRepository = $gameRepository;
+        $this->manager = $manager;
     }
 
     public function getUnits($gameId, UnitFormatter $unitFormatter): Response
     {
-        $game = $this->gameRepository->find($gameId);
+        $game = $this->manager->getGame($gameId);
 
         if(!$game) {
             return new Response("Game not found", 404);
         }
 
-        $units = [];
-
-        foreach($game->getPlayers() as $player) {
-            $units = array_merge($player->getUnits(), $units);
-        }
+        $units = $this->manager->getUnits($game);
 
         return new Response($unitFormatter->format($units));
     }
 
-    public function getUnit($unitId, UnitRepository $unitRepository ,UnitFormatter $unitFormatter): Response
+    public function getUnit($unitId, UnitFormatter $unitFormatter): Response
     {
-        $unit = $unitRepository->find($unitId);
+        $unit = $this->manager->getUnit($unitId);
 
         if(!$unit) {
             return new Response("Unit not found", 404);

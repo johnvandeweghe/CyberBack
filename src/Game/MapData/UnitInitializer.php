@@ -1,8 +1,8 @@
 <?php
-namespace App\MapData;
+namespace App\Game\MapData;
 
-use App\Entity\Player;
-use App\Entity\Unit;
+use App\Orm\Entity\Player;
+use App\Orm\Entity\Unit;
 
 class UnitInitializer
 {
