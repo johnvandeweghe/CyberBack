@@ -9,6 +9,7 @@ use App\MapData\UnitInitializer;
 use App\Repository\GameRepository;
 use App\Repository\MapRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Pusher\Pusher;
 use Pusher\PusherException;
 use Symfony\Component\HttpFoundation\Request;
@@ -64,7 +65,8 @@ class LobbyController
     public function createPlayer(
         Request $request,
         Pusher $pusher,
-        MapDataRetriever $mapDataRetriever
+        MapDataRetriever $mapDataRetriever,
+        LoggerInterface $logger
     ): Response
     {
         $body = json_decode($request->getContent(), true);
@@ -80,7 +82,7 @@ class LobbyController
         }
 
 
-        if($game->getPlayers() >= $game->getMap()->getPlayerCount()) {
+        if(count($game->getPlayers()) >= $game->getMap()->getPlayerCount()) {
             return new Response("Game full", 403);
         }
 
@@ -93,6 +95,7 @@ class LobbyController
         $player = new Player();
         $player->setGame($game);
         $player->setPlayerNumber(count($game->getPlayers()) + 1);
+        $logger->debug("player count" . count($game->getPlayers()));
 
         $this->entityManager->persist($player);
 
@@ -107,10 +110,12 @@ class LobbyController
 
         if($player->getPlayerNumber() == $game->getMap()->getPlayerCount()) {
             try {
+                $pusher->setLogger($logger);
                 $pusher->trigger("game-" . $game->getId(), "turn-start", [
                     "playerNumber" => $game->getPlayerNumber()
                 ]);
             } catch (PusherException $e) {
+                $logger->warning("Exception while firing pusher event: " . $e->getMessage());
             }
         }
 

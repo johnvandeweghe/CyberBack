@@ -5,3 +5,4 @@ services:
             - '%env(PUSHER_KEY)%'
             - '%env(PUSHER_SECRET)%'
             - '%env(PUSHER_APP_ID)%'
+            - cluster: '%env(PUSHER_APP_CLUSTER)%'
