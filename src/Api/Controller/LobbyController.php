@@ -73,4 +73,16 @@ class LobbyController
         return new Response(json_encode(["id" => $player->getId(), "playerNumber" => $player->getPlayerNumber()]));
     }
 
+    public function getPlayer(?string $playerId): Response
+    {
+
+        $player = $this->manager->getPlayer($playerId);
+
+        if(!$player) {
+            return new Response("Player not found", 404);
+        }
+
+        return new Response(json_encode(["id" => $player->getId(), "playerNumber" => $player->getPlayerNumber()]));
+    }
+
 }

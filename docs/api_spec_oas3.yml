@@ -63,6 +63,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Player'
+    /player/{playerId}:
+      get:
+        summary: get a player by id
+        operationId: getPlayer
+        tags:
+        - lobby
+        parameters:
+        - name: playerId
+          in: path
+          description: Which player's ID to retrieve
+          required: true
+          schema:
+            type: string
+            format: uuid
+        responses:
+          '200':
+            description: Player information
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Player'
   '/units/{gameId}':
     get:
       summary: Get units for a game.

@@ -256,4 +256,14 @@ class Unit
         $this->player = $player;
         return $this;
     }
+
+    public function regenerateActionPoints(): self
+    {
+        $this->currentActionPoints = min(
+            $this->currentActionPoints + $this->getActionPointRegenRate(),
+            $this->getMaxActionPoints()
+        );
+
+        return $this;
+    }
 }

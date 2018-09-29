@@ -1,7 +1,10 @@
 <?php
 namespace App\Api\Controller;
 
+use App\Game\Exception\InsufficientActionPointsException;
+use App\Game\Exception\InvalidPathException;
 use App\Game\Exception\OutOfTurnException;
+use App\Game\Exception\UnplacedUnitsException;
 use App\Game\Manager;
 use App\Game\ManagerInterface;
 use App\Orm\Entity\Turn;
@@ -73,6 +76,8 @@ class TurnController
             $this->manager->endTurn($turn);
         } catch (OutOfTurnException $e) {
             return new Response("Not your turn", Response::HTTP_FORBIDDEN);
+        } catch (UnplacedUnitsException $e) {
+            return new Response("Not your turn", Response::HTTP_BAD_REQUEST);
         }
 
         return new Response(json_encode([
@@ -101,14 +106,44 @@ class TurnController
             return new Response("Missing action type", Response::HTTP_BAD_REQUEST);
         }
 
-        switch($type) {
-            case Manager::UNIT_ACTION_MOVE:
+        $turn = $this->manager->getTurn($turnId);
 
-                break;
-            case Manager::UNIT_ACTION_ATTACK:
-                break;
-            default:
-                return new Response("Unknown Type", Response::HTTP_NOT_FOUND);
+        if(!$turn) {
+            return new Response("Turn not found", Response::HTTP_NOT_FOUND);
+        }
+
+        $unit = $this->manager->getUnit($unitId);
+
+        if(!$unit) {
+            return new Response("Unit not found", Response::HTTP_NOT_FOUND);
+        }
+
+        try {
+            switch($type) {
+                case Manager::UNIT_ACTION_MOVE:
+                    $this->manager->moveUnit($unit, $args["path"] ?? []);
+                    return new Response(json_encode([
+                        "unitId" => $unit->getId(),
+                        "turnId" => $turn->getId(),
+                        "type" => Manager::UNIT_ACTION_MOVE,
+                        "status" => "success",
+                        "affectedUnitIds" => [
+                            $unit->getId()
+                        ]
+                    ]));
+                    break;
+                case Manager::UNIT_ACTION_ATTACK:
+                    return new Response("Not implemented", Response::HTTP_NOT_IMPLEMENTED);
+                    break;
+                default:
+                    return new Response("Unknown Type", Response::HTTP_NOT_FOUND);
+            }
+        } catch (OutOfTurnException $e) {
+            return new Response("Not your turn", Response::HTTP_FORBIDDEN);
+        } catch (InsufficientActionPointsException $e) {
+            return new Response("Insufficient action points", Response::HTTP_FORBIDDEN);
+        } catch (InvalidPathException $e) {
+            return new Response("Invalid path", Response::HTTP_BAD_REQUEST);
         }
     }
 }

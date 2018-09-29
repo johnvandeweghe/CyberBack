@@ -15,6 +15,10 @@ addPlayer:
     path: /player
     controller: App\Api\Controller\LobbyController::createPlayer
     methods: [POST]
+getPlayer:
+    path: /player/{playerId}
+    controller: App\Api\Controller\LobbyController::getPlayer
+    methods: [GET]
 
 
 getUnits:

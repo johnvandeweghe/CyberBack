@@ -2,8 +2,11 @@
 namespace App\Game;
 
 use App\Game\Exception\GameFullException;
+use App\Game\Exception\InsufficientActionPointsException;
+use App\Game\Exception\InvalidPathException;
 use App\Game\Exception\OutOfTurnException;
 use App\Game\Exception\UnableToJoinGameException;
+use App\Game\Exception\UnplacedUnitsException;
 use App\Game\MapData\MapDataRetriever;
 use App\Game\MapData\UnitInitializer;
 use App\Orm\Entity\Game;
@@ -14,6 +17,7 @@ use App\Orm\Repository\GameRepository;
 use App\Orm\Repository\MapRepository;
 use App\Orm\Repository\PlayerRepository;
 use App\Orm\Repository\TurnRepository;
+use App\Orm\Repository\UnitRepository;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMException;
 use Psr\Log\LoggerInterface;
@@ -56,6 +60,10 @@ class Manager implements ManagerInterface
      * @var LoggerInterface
      */
     private $logger;
+    /**
+     * @var UnitRepository
+     */
+    private $unitRepository;
 
     /**
      * Manager constructor.
@@ -64,6 +72,7 @@ class Manager implements ManagerInterface
      * @param GameRepository $gameRepository
      * @param TurnRepository $turnRepository
      * @param PlayerRepository $playerRepository
+     * @param UnitRepository $unitRepository
      * @param Pusher $pusher
      * @param MapDataRetriever $mapDataRetriever
      * @param LoggerInterface $logger
@@ -74,6 +83,7 @@ class Manager implements ManagerInterface
         GameRepository $gameRepository,
         TurnRepository $turnRepository,
         PlayerRepository $playerRepository,
+        UnitRepository $unitRepository,
         Pusher $pusher,
         MapDataRetriever $mapDataRetriever,
         LoggerInterface $logger
@@ -87,6 +97,7 @@ class Manager implements ManagerInterface
         $this->pusher = $pusher;
         $this->mapDataRetriever = $mapDataRetriever;
         $this->logger = $logger;
+        $this->unitRepository = $unitRepository;
     }
 
     /**
@@ -154,18 +165,12 @@ class Manager implements ManagerInterface
         }
 
         if($player->getPlayerNumber() == $game->getMap()->getPlayerCount()) {
-            try {
-                $this->pusher->setLogger($this->logger);
-                $this->pusher->trigger("game-" . $game->getId(), "turn-start", [
-                    "playerNumber" => $game->getPlayerNumber()
-                ]);
-            } catch (PusherException $e) {
-                $this->logger->error("Exception while firing pusher event: " . $e->getMessage());
-            }
+            $this->triggerTurnStartEvent($game);
         }
 
         return $player;
     }
+
     /**
      * @param $mapData
      * @param $player
@@ -206,7 +211,7 @@ class Manager implements ManagerInterface
 
         $turn = new Turn();
         $turn->setPlayer($player);
-        $turn->setStartTimestamp($now !== null ?: new \DateTime());
+        $turn->setStartTimestamp(new \DateTime());
         $turn->setStatus(Turn::STATUS_IN_PROGRESS);
 
         try {
@@ -222,6 +227,7 @@ class Manager implements ManagerInterface
     /**
      * @param Turn $turn
      * @throws OutOfTurnException
+     * @throws UnplacedUnitsException
      */
     public function endTurn(Turn $turn): void
     {
@@ -229,10 +235,21 @@ class Manager implements ManagerInterface
             throw new OutOfTurnException();
         }
 
+        $hasUnplacedUnits = false;
+        foreach ($turn->getPlayer()->getUnits() as $unit) {
+            if($unit->getXPosition() === null || $unit->getYPosition() === null) {
+                $hasUnplacedUnits = true;
+                break;
+            }
+        }
+
+        if($hasUnplacedUnits) {
+            throw new UnplacedUnitsException();
+        }
+
         $turn->setStatus(Turn::STATUS_COMPLETED);
 
         try {
-            $this->entityManager->persist($turn);
             $this->entityManager->flush();
         } catch (ORMException $e) {
             throw new \RuntimeException("Unable to communicate with DB: " . $e->getMessage(), $e->getCode(), $e);
@@ -240,14 +257,7 @@ class Manager implements ManagerInterface
 
         $game = $turn->getPlayer()->getGame();
 
-        try {
-            $this->pusher->setLogger($this->logger);
-            $this->pusher->trigger("game-" . $game->getId(), "turn-start", [
-                "playerNumber" => $game->getPlayerNumber()
-            ]);
-        } catch (PusherException $e) {
-            $this->logger->error("Exception while firing pusher event: " . $e->getMessage());
-        }
+        $this->triggerTurnStartEvent($game);
     }
     /**
      * @param string $turnId
@@ -279,7 +289,56 @@ class Manager implements ManagerInterface
      */
     public function getUnit(string $unitId): ?Unit
     {
-        // TODO: Implement getUnit() method.
+        return $this->unitRepository->find($unitId);
     }
 
+    /**
+     * @param $game
+     */
+    private function triggerTurnStartEvent(Game $game): void
+    {
+        if ($game->getTurnNumber() !== 1) {
+            $currentPlayer = null;
+            foreach($game->getPlayers() as $player) {
+                if ($player->getPlayerNumber() == $game->getPlayerNumber()) {
+                    $currentPlayer = $player;
+                }
+            }
+
+            if($currentPlayer === null){
+                throw new \RuntimeException("Missing player #" . $game->getPlayerNumber());
+            }
+
+            foreach($currentPlayer->getUnits() as $unit) {
+                $unit->regenerateActionPoints();
+            }
+
+            try {
+                $this->entityManager->flush();
+            } catch (ORMException $e) {
+                throw new \RuntimeException("Unable to save units: " . $e->getMessage(), $e->getCode(), $e);
+            }
+        }
+
+        try {
+            $this->pusher->setLogger($this->logger);
+            $this->pusher->trigger("game-" . $game->getId(), "turn-start", [
+                "playerNumber" => $game->getPlayerNumber()
+            ]);
+        } catch (PusherException $e) {
+            $this->logger->error("Exception while firing pusher event: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * @param Unit $unit
+     * @param array $path
+     * @throws OutOfTurnException
+     * @throws InsufficientActionPointsException
+     * @throws InvalidPathException
+     */
+    public function moveUnit(Unit $unit, array $path): void
+    {
+
+    }
 }

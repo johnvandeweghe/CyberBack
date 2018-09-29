@@ -2,8 +2,11 @@
 namespace App\Game;
 
 use App\Game\Exception\GameFullException;
+use App\Game\Exception\InsufficientActionPointsException;
+use App\Game\Exception\InvalidPathException;
 use App\Game\Exception\OutOfTurnException;
 use App\Game\Exception\UnableToJoinGameException;
+use App\Game\Exception\UnplacedUnitsException;
 use App\Orm\Entity\Game;
 use App\Orm\Entity\Player;
 use App\Orm\Entity\Turn;
@@ -47,6 +50,7 @@ interface ManagerInterface
     /**
      * @param Turn $turn
      * @throws OutOfTurnException
+     * @throws UnplacedUnitsException
      */
     public function endTurn(Turn $turn): void;
 
@@ -67,5 +71,16 @@ interface ManagerInterface
      * @return Unit|null
      */
     public function getUnit(string $unitId): ?Unit;
+
+    /**
+     * @param Unit $unit
+     * @param array $path
+     * @throws OutOfTurnException
+     * @throws InsufficientActionPointsException
+     * @throws InvalidPathException
+     */
+    public function moveUnit(Unit $unit, array $path): void;
+
+
 
 }
