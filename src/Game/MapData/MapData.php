@@ -56,4 +56,16 @@ class MapData
     {
         return $this->unitData;
     }
+
+    /**
+     * @param int $x
+     * @param int $y
+     * @return Tile
+     * @throws \OutOfBoundsException
+     */
+    public function getTile(int $x, int $y): Tile
+    {
+
+
+    }
 }

@@ -73,13 +73,14 @@ interface ManagerInterface
     public function getUnit(string $unitId): ?Unit;
 
     /**
+     * @param Turn $turn
      * @param Unit $unit
      * @param array $path
      * @throws OutOfTurnException
      * @throws InsufficientActionPointsException
      * @throws InvalidPathException
      */
-    public function moveUnit(Unit $unit, array $path): void;
+    public function moveUnit(Turn $turn, Unit $unit, array $path): void;
 
 
 

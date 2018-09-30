@@ -121,7 +121,7 @@ class TurnController
         try {
             switch($type) {
                 case Manager::UNIT_ACTION_MOVE:
-                    $this->manager->moveUnit($unit, $args["path"] ?? []);
+                    $this->manager->moveUnit($turn, $unit, $args["path"] ?? []);
                     return new Response(json_encode([
                         "unitId" => $unit->getId(),
                         "turnId" => $turn->getId(),

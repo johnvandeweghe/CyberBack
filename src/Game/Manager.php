@@ -8,6 +8,7 @@ use App\Game\Exception\OutOfTurnException;
 use App\Game\Exception\UnableToJoinGameException;
 use App\Game\Exception\UnplacedUnitsException;
 use App\Game\MapData\MapDataRetriever;
+use App\Game\MapData\Tile;
 use App\Game\MapData\UnitInitializer;
 use App\Orm\Entity\Game;
 use App\Orm\Entity\Player;
@@ -331,14 +332,55 @@ class Manager implements ManagerInterface
     }
 
     /**
+     * @param Turn $turn
      * @param Unit $unit
      * @param array $path
      * @throws OutOfTurnException
      * @throws InsufficientActionPointsException
      * @throws InvalidPathException
      */
-    public function moveUnit(Unit $unit, array $path): void
+    public function moveUnit(Turn $turn, Unit $unit, array $path): void
     {
+        if($turn->getStatus() !== Turn::STATUS_IN_PROGRESS || $unit->getPlayerId() !== $turn->getPlayerId()) {
+            throw new OutOfTurnException();
+        }
 
+        if (count($path) === 0) {
+            return;
+        }
+
+        $mapData = $this->mapDataRetriever->getMapData($turn->getPlayer()->getGame()->getMap()->getId());
+
+        try {
+            /**
+             * @var $pathTiles Tile[]
+             */
+            $pathTiles = array_map(function($path) use ($mapData): Tile {
+                return $mapData->getTile($path['x'], $path['y']);
+            }, $path);
+        } catch (\OutOfBoundsException $outOfBoundsException) {
+            throw new InvalidPathException("Unable to be placed out of map");
+        }
+
+        if ($unit->getXPosition() === null && $unit->getYPosition() === null) {
+            if (count($path) !== 1) {
+                throw new InvalidPathException("Unplaced units must be provided a single coordinate.");
+            }
+
+            $tile = $pathTiles[0];
+
+            if ($tile->getPlayerOwner() !== $unit->getPlayer()->getPlayerNumber()) {
+                throw new InvalidPathException("Unplaced units must be placed on a self owned tile.");
+            }
+
+            if($unit->getPlayer()->getGame()->getUnit($path['x'], $path['y'])) {
+                throw new InvalidPathException("Tile occupied.");
+            }
+
+            $unit->setXPosition($path['x']);
+            $unit->setYPosition($path['y']);
+        } else {
+            
+        }
     }
 }

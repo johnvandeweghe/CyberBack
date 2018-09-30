@@ -112,4 +112,16 @@ class Game
         return $turns;
     }
 
+    public function getUnit(int $x, int $y): ?Unit {
+        foreach ($this->getPlayers() as $player) {
+            foreach ($player->getUnits() as $unit) {
+                if ($unit->getXPosition() === $x && $unit->getYPosition() === $y) {
+                    return $unit;
+                }
+            }
+        }
+
+        return null;
+    }
+
 }
