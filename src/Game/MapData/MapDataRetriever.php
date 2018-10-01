@@ -18,17 +18,17 @@ class MapDataRetriever implements MapDataRetrieverInterface
 
     /**
      * MapDataRetriever constructor.
+     * @param string $mapAssetsDir
      * @param LoggerInterface $logger
+     * @param null|Finder $finder
      */
-    const ASSETS_MAPS_DIR = "../../assets/maps/";
-
-    public function __construct(LoggerInterface $logger, ?Finder $finder = null)
+    public function __construct(string $mapAssetsDir, LoggerInterface $logger, ?Finder $finder = null)
     {
         if ($finder) {
             $this->finder = $finder;
         } else {
             $this->finder = Finder::create();
-            $this->finder->in(self::ASSETS_MAPS_DIR)->files();
+            $this->finder->in($mapAssetsDir)->files();
         }
         $this->logger = $logger;
     }

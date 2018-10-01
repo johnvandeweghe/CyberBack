@@ -35,7 +35,7 @@ class GameFormatter
                         "owner" => $tile->getPlayerOwner(),
                         "type" => $tile->getType(),
                     ];
-		}, $mapData->getTiles()),
+		        }, $mapData->getTiles()),
                 "width" => $mapData->getWidth()
             ]
         ]);

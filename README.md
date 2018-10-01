@@ -38,14 +38,7 @@ composer install
 ```
 
 Then for development set the config in .env.
-Example .env:
-```ini
-APP_ENV=dev
-APP_SECRET=eb106562e67ed9f80b2c2ed8e2d9a5dd
-DATABASE_URL=sqlite:////tmp/db_name
-PUSHER_APP_ID=
-PUSHER_KEY=
-PUSHER_SECRET=
+You can use .env.dist as a starter file.
 ```
 
 Then you can setup your database by running the migrations with the following:
@@ -65,6 +58,11 @@ Simply execute the following to run all unit tests:
 ./bin/phpunit
 ```
 Note: Test server does not need to be running to run the tests.
+
+To run the integration tests:
+```bash
+./bin/phpunit --testsuite integration
+```
 
 ## Deployment
 

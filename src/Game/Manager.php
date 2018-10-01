@@ -19,8 +19,7 @@ use App\Orm\Repository\MapRepository;
 use App\Orm\Repository\PlayerRepository;
 use App\Orm\Repository\TurnRepository;
 use App\Orm\Repository\UnitRepository;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\ORMException;
+use Doctrine\Common\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
 use Pusher\Pusher;
 use Pusher\PusherException;
@@ -30,7 +29,7 @@ class Manager implements ManagerInterface
     public const UNIT_ACTION_MOVE = 'move';
     public const UNIT_ACTION_ATTACK = 'attack';
     /**
-     * @var EntityManager
+     * @var ObjectManager
      */
     private $entityManager;
     /**
@@ -68,7 +67,7 @@ class Manager implements ManagerInterface
 
     /**
      * Manager constructor.
-     * @param EntityManager $entityManager
+     * @param ObjectManager $objectManager
      * @param MapRepository $mapRepository
      * @param GameRepository $gameRepository
      * @param TurnRepository $turnRepository
@@ -79,7 +78,7 @@ class Manager implements ManagerInterface
      * @param LoggerInterface $logger
      */
     public function __construct(
-        EntityManager $entityManager,
+        ObjectManager $objectManager,
         MapRepository $mapRepository,
         GameRepository $gameRepository,
         TurnRepository $turnRepository,
@@ -90,7 +89,7 @@ class Manager implements ManagerInterface
         LoggerInterface $logger
     )
     {
-        $this->entityManager = $entityManager;
+        $this->entityManager = $objectManager;
         $this->mapRepository = $mapRepository;
         $this->gameRepository = $gameRepository;
         $this->turnRepository = $turnRepository;
@@ -110,14 +109,10 @@ class Manager implements ManagerInterface
         $map = $this->mapRepository->chooseRandomMap(2);
         $game = new Game($map);
 
-        try {
-            $this->entityManager->persist($game);
-            $this->entityManager->flush();
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
 
-            return $game;
-        } catch (ORMException $e) {
-            throw new \RuntimeException("Unable to communicate with DB: " . $e->getMessage(), $e->getCode(), $e);
-        }
+        return $game;
     }
 
     /**
@@ -151,19 +146,11 @@ class Manager implements ManagerInterface
         $player->setGame($game);
         $player->setPlayerNumber(count($game->getPlayers()) + 1);
 
-        try {
-            $this->entityManager->persist($player);
-        } catch (ORMException $e) {
-            throw new UnableToJoinGameException("DB error: " . $e->getMessage(), $e->getCode(), $e);
-        }
+        $this->entityManager->persist($player);
 
         $this->initializeUnits($mapData, $player);
 
-        try {
-            $this->entityManager->flush();
-        } catch (ORMException $e) {
-            throw new UnableToJoinGameException("DB error: " . $e->getMessage(), $e->getCode(), $e);
-        }
+        $this->entityManager->flush();
 
         if($player->getPlayerNumber() == $game->getMap()->getPlayerCount()) {
             $this->triggerTurnStartEvent($game);
@@ -175,7 +162,6 @@ class Manager implements ManagerInterface
     /**
      * @param $mapData
      * @param $player
-     * @throws UnableToJoinGameException
      */
     private function initializeUnits($mapData, $player): void
     {
@@ -183,11 +169,7 @@ class Manager implements ManagerInterface
         $units = $unitInitializer->getUnitsForPlayer($player);
 
         foreach ($units as $unit) {
-            try {
-                $this->entityManager->persist($unit);
-            } catch (ORMException $e) {
-                throw new UnableToJoinGameException("DB error: " . $e->getMessage(), $e->getCode(), $e);
-            }
+            $this->entityManager->persist($unit);
         }
     }
     /**
@@ -215,14 +197,10 @@ class Manager implements ManagerInterface
         $turn->setStartTimestamp(new \DateTime());
         $turn->setStatus(Turn::STATUS_IN_PROGRESS);
 
-        try {
-            $this->entityManager->persist($turn);
-            $this->entityManager->flush();
+        $this->entityManager->persist($turn);
+        $this->entityManager->flush();
 
-            return $turn;
-        } catch (ORMException $e) {
-            throw new \RuntimeException("Unable to communicate with DB: " . $e->getMessage(), $e->getCode(), $e);
-        }
+        return $turn;
     }
 
     /**
@@ -250,11 +228,7 @@ class Manager implements ManagerInterface
 
         $turn->setStatus(Turn::STATUS_COMPLETED);
 
-        try {
-            $this->entityManager->flush();
-        } catch (ORMException $e) {
-            throw new \RuntimeException("Unable to communicate with DB: " . $e->getMessage(), $e->getCode(), $e);
-        }
+        $this->entityManager->flush();
 
         $game = $turn->getPlayer()->getGame();
 
@@ -314,11 +288,7 @@ class Manager implements ManagerInterface
                 $unit->regenerateActionPoints();
             }
 
-            try {
-                $this->entityManager->flush();
-            } catch (ORMException $e) {
-                throw new \RuntimeException("Unable to save units: " . $e->getMessage(), $e->getCode(), $e);
-            }
+            $this->entityManager->flush();
         }
 
         try {
@@ -380,7 +350,8 @@ class Manager implements ManagerInterface
             $unit->setXPosition($path['x']);
             $unit->setYPosition($path['y']);
         } else {
-            
+            //TODO:
+            throw new InsufficientActionPointsException("TODO");
         }
     }
 }
