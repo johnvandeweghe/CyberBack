@@ -24,6 +24,7 @@ class MovementManager
     }
 
     /**
+     * Update a unit's position or blow up if the path is invalid.
      * @param Unit $unit
      * @param array $path
      * @throws InvalidPathException
@@ -51,6 +52,7 @@ class MovementManager
     }
 
     /**
+     * Update a unit's position or blow up if the path is invalid, or they don't have enough action points
      * @param Unit $unit
      * @param array $path
      * @throws InsufficientActionPointsException
