@@ -88,7 +88,7 @@ class Unit
      */
     private $player;
 
-    public function getId(): ?int
+    public function getId(): ?string
     {
         return $this->id;
     }
