@@ -8,7 +8,6 @@ use App\Game\Exception\OutOfTurnException;
 use App\Game\Exception\UnableToJoinGameException;
 use App\Game\Exception\UnplacedUnitsException;
 use App\Game\MapData\MapDataRetriever;
-use App\Game\MapData\Tile;
 use App\Game\MapData\UnitInitializer;
 use App\Orm\Entity\Game;
 use App\Orm\Entity\Player;
@@ -31,7 +30,7 @@ class Manager implements ManagerInterface
     /**
      * @var ObjectManager
      */
-    private $entityManager;
+    private $objectManager;
     /**
      * @var MapRepository
      */
@@ -64,6 +63,10 @@ class Manager implements ManagerInterface
      * @var UnitRepository
      */
     private $unitRepository;
+    /**
+     * @var MovementManager
+     */
+    private $movementManager;
 
     /**
      * Manager constructor.
@@ -75,6 +78,7 @@ class Manager implements ManagerInterface
      * @param UnitRepository $unitRepository
      * @param Pusher $pusher
      * @param MapDataRetriever $mapDataRetriever
+     * @param MovementManager $movementManager
      * @param LoggerInterface $logger
      */
     public function __construct(
@@ -86,10 +90,11 @@ class Manager implements ManagerInterface
         UnitRepository $unitRepository,
         Pusher $pusher,
         MapDataRetriever $mapDataRetriever,
+        MovementManager $movementManager,
         LoggerInterface $logger
     )
     {
-        $this->entityManager = $objectManager;
+        $this->objectManager = $objectManager;
         $this->mapRepository = $mapRepository;
         $this->gameRepository = $gameRepository;
         $this->turnRepository = $turnRepository;
@@ -98,6 +103,7 @@ class Manager implements ManagerInterface
         $this->mapDataRetriever = $mapDataRetriever;
         $this->logger = $logger;
         $this->unitRepository = $unitRepository;
+        $this->movementManager = $movementManager;
     }
 
     /**
@@ -109,8 +115,8 @@ class Manager implements ManagerInterface
         $map = $this->mapRepository->chooseRandomMap(2);
         $game = new Game($map);
 
-        $this->entityManager->persist($game);
-        $this->entityManager->flush();
+        $this->objectManager->persist($game);
+        $this->objectManager->flush();
 
         return $game;
     }
@@ -146,11 +152,11 @@ class Manager implements ManagerInterface
         $player->setGame($game);
         $player->setPlayerNumber(count($game->getPlayers()) + 1);
 
-        $this->entityManager->persist($player);
+        $this->objectManager->persist($player);
 
         $this->initializeUnits($mapData, $player);
 
-        $this->entityManager->flush();
+        $this->objectManager->flush();
 
         if($player->getPlayerNumber() == $game->getMap()->getPlayerCount()) {
             $this->triggerTurnStartEvent($game);
@@ -169,7 +175,7 @@ class Manager implements ManagerInterface
         $units = $unitInitializer->getUnitsForPlayer($player);
 
         foreach ($units as $unit) {
-            $this->entityManager->persist($unit);
+            $this->objectManager->persist($unit);
         }
     }
     /**
@@ -197,8 +203,8 @@ class Manager implements ManagerInterface
         $turn->setStartTimestamp(new \DateTime());
         $turn->setStatus(Turn::STATUS_IN_PROGRESS);
 
-        $this->entityManager->persist($turn);
-        $this->entityManager->flush();
+        $this->objectManager->persist($turn);
+        $this->objectManager->flush();
 
         return $turn;
     }
@@ -228,7 +234,7 @@ class Manager implements ManagerInterface
 
         $turn->setStatus(Turn::STATUS_COMPLETED);
 
-        $this->entityManager->flush();
+        $this->objectManager->flush();
 
         $game = $turn->getPlayer()->getGame();
 
@@ -288,7 +294,7 @@ class Manager implements ManagerInterface
                 $unit->regenerateActionPoints();
             }
 
-            $this->entityManager->flush();
+            $this->objectManager->flush();
         }
 
         try {
@@ -319,39 +325,12 @@ class Manager implements ManagerInterface
             return;
         }
 
-        $mapData = $this->mapDataRetriever->getMapData($turn->getPlayer()->getGame()->getMap()->getId());
-
-        try {
-            /**
-             * @var $pathTiles Tile[]
-             */
-            $pathTiles = array_map(function($path) use ($mapData): Tile {
-                return $mapData->getTile($path['x'], $path['y']);
-            }, $path);
-        } catch (\OutOfBoundsException $outOfBoundsException) {
-            throw new InvalidPathException("Unable to be placed out of map");
-        }
-
-        if ($unit->getXPosition() === null && $unit->getYPosition() === null) {
-            if (count($path) !== 1) {
-                throw new InvalidPathException("Unplaced units must be provided a single coordinate.");
-            }
-
-            $tile = $pathTiles[0];
-
-            if ($tile->getPlayerOwner() !== $unit->getPlayer()->getPlayerNumber()) {
-                throw new InvalidPathException("Unplaced units must be placed on a self owned tile.");
-            }
-
-            if($unit->getPlayer()->getGame()->getUnit($path['x'], $path['y'])) {
-                throw new InvalidPathException("Tile occupied.");
-            }
-
-            $unit->setXPosition($path['x']);
-            $unit->setYPosition($path['y']);
+        if ($unit->isUnplaced()) {
+            $this->movementManager->moveUnplacedUnit($unit, $path);
         } else {
-            //TODO:
-            throw new InsufficientActionPointsException("TODO");
+            $this->movementManager->moveUnit($unit, $path);
         }
+
+        $this->objectManager->flush();
     }
 }

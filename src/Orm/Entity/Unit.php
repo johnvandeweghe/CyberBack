@@ -266,4 +266,9 @@ class Unit
 
         return $this;
     }
+
+    public function isUnplaced(): bool
+    {
+        return $this->getXPosition() === null && $this->getYPosition() === null;
+    }
 }

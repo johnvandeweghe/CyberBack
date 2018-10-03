@@ -141,9 +141,9 @@ class TurnController
         } catch (OutOfTurnException $e) {
             return new Response("Not your turn", Response::HTTP_FORBIDDEN);
         } catch (InsufficientActionPointsException $e) {
-            return new Response("Insufficient action points", Response::HTTP_FORBIDDEN);
+            return new Response("Insufficient action points: " . $e->getMessage(), Response::HTTP_FORBIDDEN);
         } catch (InvalidPathException $e) {
-            return new Response("Invalid path", Response::HTTP_BAD_REQUEST);
+            return new Response("Invalid path: " . $e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 }

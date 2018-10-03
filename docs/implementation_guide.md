@@ -52,7 +52,14 @@ You may end your turn before using all of your action points, but units have a m
 
 #### Making a movement action
 To make a movement with a unit, send a ```createUnitAction``` with a type of "move" and an args of type ```MoveActionArgs```.
-Within that args object you will need to send a path your unit wants to take. This path must consist of single square adjacent only movements. No diagonals. Each unit may move up to their speed with a single action point. The total number of squares moved must not exceed that unit's alloted action points.
+Within that args object you will need to send a path your unit wants to take. This path must consist of single square adjacent only movements. No diagonals. Each unit may move up to their speed with a single action point. The total number of squares moved must not exceed that unit's allotted action points.
+Units may not occupy the same space as another unit, and may not pass through a unit, even a friendly unit. Units may not leave the map.
+
+Useful functions for flat tile data parsing (where X and Y are coordinates, i is the tile index, and W is map width):
+
+     y = floor(i / W)
+     x = i % W
+     i = y * W + x
 
 #### Attacking a unit
 To attack a unit, send a ```createUnitAction``` with a type of "attack", and the unitID you are targeting. The target unit must be within the attacking unit's attack range, following the same rules as movement to calculate distance. Attack actions use your unit's attack stat number of action points.

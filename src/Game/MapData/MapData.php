@@ -65,7 +65,20 @@ class MapData
      */
     public function getTile(int $x, int $y): Tile
     {
+        if($x < 0 || $y < 0) {
+            throw new \OutOfBoundsException("Map starts at 0,0");
+        }
 
+        if($x >= $this->getWidth()) {
+            throw new \OutOfBoundsException("X larger than map width");
+        }
 
+        $index = $y * $this->width + $x;
+
+        if ($index >= count($this->getTiles())) {
+            throw new \OutOfBoundsException("Y larger than height");
+        }
+
+        return $this->getTiles()[$y * $this->width + $x];
     }
 }
