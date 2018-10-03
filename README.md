@@ -37,9 +37,7 @@ cd CyberBack
 composer install
 ```
 
-Then for development set the config in .env.
-You can use .env.dist as a starter file.
-```
+Then for development set the config in .env. You can use .env.dist as a starter file.
 
 Then you can setup your database by running the migrations with the following:
 ```bash
@@ -61,7 +59,7 @@ Note: Test server does not need to be running to run the tests.
 
 To run the integration tests:
 ```bash
-./bin/phpunit --testsuite integration
+./bin/phpunit --testsuite=integration
 ```
 
 ## Deployment
