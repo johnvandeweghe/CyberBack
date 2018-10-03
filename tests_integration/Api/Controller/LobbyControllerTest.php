@@ -26,6 +26,8 @@ class LobbyControllerTest extends WebTestCase
         $this->assertArrayIsValidPlayer($playerData);
     }
 
+    //TODO: Test non 200 responses
+
     private function assertArrayIsValidGame(array $gameData): void
     {
         $this->assertArrayHasKey("id", $gameData);

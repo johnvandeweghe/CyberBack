@@ -24,6 +24,8 @@ class GameControllerTest extends WebTestCase
         $this->assertUnitDataIsValid($unitDatum);
     }
 
+    //TODO: Test non 200 responses
+
     private function assertUnitDataIsValid($unitData)
     {
         $this->assertArrayHasKey("id", $unitData);
