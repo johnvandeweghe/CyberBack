@@ -75,6 +75,11 @@ class Game
         return count($this->getTurns());
     }
 
+    public function isPlacementTurns(): bool
+    {
+        return $this->getTurnNumber() < count($this->getPlayers());
+    }
+
     public function getMostRecentTurn(): ?Turn
     {
         return array_reduce($this->getTurns(), function (?Turn $carry, Turn $turn): Turn {

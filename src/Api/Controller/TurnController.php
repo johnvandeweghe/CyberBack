@@ -45,7 +45,7 @@ class TurnController
         try {
             $turn = $this->manager->startTurn($player);
         } catch (OutOfTurnException $e) {
-            return new Response("Not your turn", Response::HTTP_FORBIDDEN);
+            return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
         }
 
         return new Response(json_encode([

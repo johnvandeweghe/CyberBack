@@ -35,6 +35,9 @@ class GameControllerTest extends WebTestCase
         $this->assertArrayHasKey("unitType", $unitData);
         $this->assertArrayHasKey("minRange", $unitData);
         $this->assertArrayHasKey("maxRange", $unitData);
+        $this->assertArrayHasKey("maxAP", $unitData);
+        $this->assertArrayHasKey("currentAP", $unitData);
+        $this->assertArrayHasKey("apRegen", $unitData);
         $this->assertArrayHasKey("owner", $unitData);
         $this->assertArrayHasKey("coordinates", $unitData);
         $this->assertNull($unitData["coordinates"]);

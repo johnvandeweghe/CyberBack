@@ -195,7 +195,12 @@ class Manager implements ManagerInterface
     public function startTurn(Player $player): Turn
     {
         if(!$player->isTurn()) {
-            throw new OutOfTurnException();
+            throw new OutOfTurnException("Not your turn");
+        }
+
+        if(($currentTurn = $player->getGame()->getMostRecentTurn()) &&
+            $currentTurn->getStatus() === Turn::STATUS_IN_PROGRESS) {
+            throw new OutOfTurnException("You already have a turn in progress.");
         }
 
         $turn = new Turn();
@@ -278,7 +283,7 @@ class Manager implements ManagerInterface
      */
     private function triggerTurnStartEvent(Game $game): void
     {
-        if ($game->getTurnNumber() !== 1) {
+        if (!$game->isPlacementTurns()) {
             $currentPlayer = null;
             foreach($game->getPlayers() as $player) {
                 if ($player->getPlayerNumber() == $game->getPlayerNumber()) {
@@ -325,7 +330,7 @@ class Manager implements ManagerInterface
             return;
         }
 
-        if ($unit->isUnplaced()) {
+        if ($unit->isUnplaced() || $turn->getPlayer()->getGame()->isPlacementTurns()) {
             $this->movementManager->moveUnplacedUnit($unit, $path);
         } else {
             $this->movementManager->moveUnit($unit, $path);

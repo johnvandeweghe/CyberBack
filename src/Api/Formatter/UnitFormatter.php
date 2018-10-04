@@ -37,8 +37,11 @@ class UnitFormatter
             "unitType" => $unit->getUnitType(),
             "minRange" => $unit->getMinRange(),
             "maxRange" => $unit->getMaxRange(),
+            "maxAP" => $unit->getMaxActionPoints(),
+            "currentAP" => $unit->getCurrentActionPoints(),
+            "apRegen" => $unit->getActionPointRegenRate(),
             "owner" => $unit->getPlayer()->getPlayerNumber(),
-            "coordinates" => $unit->getXPosition() && $unit->getYPosition() ? [
+            "coordinates" => $unit->getXPosition() !== null && $unit->getYPosition() !== null ? [
                 "x" => $unit->getXPosition(),
                 "y" => $unit->getYPosition()
             ] : null
