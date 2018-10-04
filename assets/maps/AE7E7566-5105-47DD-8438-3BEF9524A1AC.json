@@ -6,7 +6,7 @@
       "owner": 1
     },
     {
-      "type": "concrete",
+      "type": "brick",
       "owner": 1
     },
     {
@@ -18,11 +18,11 @@
       "owner": 1
     },
     {
-      "type": "concrete",
+      "type": "brick",
       "owner": 1
     },
     {
-      "type": "concrete",
+      "type": "brick",
       "owner": 0
     },
     {
@@ -34,7 +34,7 @@
       "owner": 0
     },
     {
-      "type": "concrete",
+      "type": "brick",
       "owner": 0
     },
     {
@@ -42,7 +42,7 @@
       "owner": 0
     },
     {
-      "type": "concrete",
+      "type": "brick",
       "owner": 0
     },
     {
@@ -50,7 +50,11 @@
       "owner": 0
     },
     {
-      "type": "concrete",
+      "type": "brick",
+      "owner": 0
+    },
+    {
+      "type": "brick",
       "owner": 0
     },
     {
@@ -58,7 +62,7 @@
       "owner": 0
     },
     {
-      "type": "concrete",
+      "type": "brick",
       "owner": 0
     },
     {
@@ -66,19 +70,15 @@
       "owner": 0
     },
     {
-      "type": "concrete",
+      "type": "brick",
       "owner": 0
     },
     {
-      "type": "concrete",
+      "type": "brick",
       "owner": 0
     },
     {
-      "type": "concrete",
-      "owner": 0
-    },
-    {
-      "type": "concrete",
+      "type": "brick",
       "owner": 0
     },
     {
@@ -86,7 +86,7 @@
       "owner": 2
     },
     {
-      "type": "concrete",
+      "type": "brick",
       "owner": 2
     },
     {
@@ -94,7 +94,7 @@
       "owner": 2
     },
     {
-      "type": "concrete",
+      "type": "brick",
       "owner": 2
     },
     {

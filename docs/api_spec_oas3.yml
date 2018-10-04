@@ -261,6 +261,7 @@ components:
                     example: concrete
                     enum:
                     - "concrete"
+                    - "brick"
                   owner:
                     type: integer
                     format: int32
