@@ -9,6 +9,10 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Unit
 {
+    const TYPE_SWORDS = "swords";
+    const TYPE_MAGIC = "magic";
+    const TYPE_GUNS = "guns";
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue(strategy="UUID")
@@ -124,7 +128,12 @@ class Unit
 
     public function setHealth(int $health): self
     {
-        $this->health = $health;
+        $this->health = max(0, $health);
+
+        if($this->isIncapacitated()) {
+            $this->setXPosition(null);
+            $this->setYPosition(null);
+        }
 
         return $this;
     }
@@ -270,5 +279,10 @@ class Unit
     public function isUnplaced(): bool
     {
         return $this->getXPosition() === null && $this->getYPosition() === null;
+    }
+
+    public function isIncapacitated(): bool
+    {
+        return $this->getHealth() === 0;
     }
 }

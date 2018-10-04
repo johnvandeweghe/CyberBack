@@ -3,6 +3,7 @@ namespace App\Api\Controller;
 
 use App\Game\Exception\InsufficientActionPointsException;
 use App\Game\Exception\InvalidPathException;
+use App\Game\Exception\InvalidTargetException;
 use App\Game\Exception\OutOfTurnException;
 use App\Game\Exception\UnplacedUnitsException;
 use App\Game\Manager;
@@ -122,28 +123,40 @@ class TurnController
             switch($type) {
                 case Manager::UNIT_ACTION_MOVE:
                     $this->manager->moveUnit($turn, $unit, $args["path"] ?? []);
-                    return new Response(json_encode([
-                        "unitId" => $unit->getId(),
-                        "turnId" => $turn->getId(),
-                        "type" => Manager::UNIT_ACTION_MOVE,
-                        "status" => "success",
-                        "affectedUnitIds" => [
-                            $unit->getId()
-                        ]
-                    ]));
+                    $affectedUnitIds = [
+                        $unit->getId()
+                    ];
                     break;
                 case Manager::UNIT_ACTION_ATTACK:
-                    return new Response("Not implemented", Response::HTTP_NOT_IMPLEMENTED);
+                    $targetUnit = $this->manager->getUnit($args["targetUnitId"]);
+                    if(!$targetUnit) {
+                        return new Response("Target uit not found", Response::HTTP_NOT_FOUND);
+                    }
+                    $this->manager->attackUnit($turn, $unit, $targetUnit);
+                    $affectedUnitIds = [
+                        $unit->getId(),
+                        $targetUnit->getId()
+                    ];
                     break;
                 default:
                     return new Response("Unknown Type", Response::HTTP_NOT_FOUND);
             }
+
+            return new Response(json_encode([
+                "unitId" => $unit->getId(),
+                "turnId" => $turn->getId(),
+                "type" => $type,
+                "status" => "success",
+                "affectedUnitIds" => $affectedUnitIds
+            ]));
         } catch (OutOfTurnException $e) {
             return new Response("Not your turn", Response::HTTP_FORBIDDEN);
         } catch (InsufficientActionPointsException $e) {
             return new Response("Insufficient action points: " . $e->getMessage(), Response::HTTP_FORBIDDEN);
         } catch (InvalidPathException $e) {
             return new Response("Invalid path: " . $e->getMessage(), Response::HTTP_BAD_REQUEST);
+        } catch (InvalidTargetException $e) {
+            return new Response("Invalid target: " . $e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 }

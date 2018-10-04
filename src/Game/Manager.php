@@ -4,6 +4,7 @@ namespace App\Game;
 use App\Game\Exception\GameFullException;
 use App\Game\Exception\InsufficientActionPointsException;
 use App\Game\Exception\InvalidPathException;
+use App\Game\Exception\InvalidTargetException;
 use App\Game\Exception\OutOfTurnException;
 use App\Game\Exception\UnableToJoinGameException;
 use App\Game\Exception\UnplacedUnitsException;
@@ -27,6 +28,31 @@ class Manager implements ManagerInterface
 {
     public const UNIT_ACTION_MOVE = 'move';
     public const UNIT_ACTION_ATTACK = 'attack';
+
+    //[Attacker][Target]
+    const TYPE_ATTACK_MODIFIERS = [
+        Unit::TYPE_SWORDS => [
+            Unit::TYPE_SWORDS => 1,
+            Unit::TYPE_MAGIC => 2,
+            Unit::TYPE_GUNS => .5
+        ],
+        Unit::TYPE_MAGIC => [
+            Unit::TYPE_SWORDS => .5,
+            Unit::TYPE_MAGIC => 1,
+            Unit::TYPE_GUNS => 2
+        ],
+        Unit::TYPE_GUNS => [
+            Unit::TYPE_SWORDS => 2,
+            Unit::TYPE_MAGIC => .5,
+            Unit::TYPE_GUNS => 1
+        ]
+    ];
+
+    //Out of 100
+    const CRIT_CHANCE = 5;
+
+    const CRIT_MULTIPLIER = 2;
+
     /**
      * @var ObjectManager
      */
@@ -227,7 +253,7 @@ class Manager implements ManagerInterface
 
         $hasUnplacedUnits = false;
         foreach ($turn->getPlayer()->getUnits() as $unit) {
-            if($unit->getXPosition() === null || $unit->getYPosition() === null) {
+            if($unit->isUnplaced() && !$unit->isIncapacitated()) {
                 $hasUnplacedUnits = true;
                 break;
             }
@@ -322,7 +348,7 @@ class Manager implements ManagerInterface
      */
     public function moveUnit(Turn $turn, Unit $unit, array $path): void
     {
-        if($turn->getStatus() !== Turn::STATUS_IN_PROGRESS || $unit->getPlayerId() !== $turn->getPlayerId()) {
+        if($turn->getStatus() !== Turn::STATUS_IN_PROGRESS || $unit->getPlayerId() !== $turn->getPlayerId() || $unit->isIncapacitated()) {
             throw new OutOfTurnException();
         }
 
@@ -335,6 +361,53 @@ class Manager implements ManagerInterface
         } else {
             $this->movementManager->moveUnit($unit, $path);
         }
+
+        $this->objectManager->flush();
+    }
+
+    /**
+     * @param Turn $turn
+     * @param Unit $unit
+     * @param Unit $targetUnit
+     * @throws OutOfTurnException
+     * @throws InsufficientActionPointsException
+     * @throws InvalidTargetException
+     */
+    public function attackUnit(Turn $turn, Unit $unit, Unit $targetUnit): void
+    {
+        if($turn->getStatus() !== Turn::STATUS_IN_PROGRESS || $unit->getPlayerId() !== $turn->getPlayerId() || $unit->isUnplaced()) {
+            throw new OutOfTurnException();
+        }
+
+        if($targetUnit->getPlayerId() === $unit->getPlayerId()) {
+            throw new InvalidTargetException("Unable to target friendly units");
+        }
+
+        if($targetUnit->isUnplaced()) {
+            throw new InvalidTargetException("Target is not placed or is incapacitated.");
+        }
+
+        if($unit->getCurrentActionPoints() < $unit->getAttack()) {
+            throw new InsufficientActionPointsException("Attacking requires at least the unit's attack stat in action points.");
+        }
+
+        $distance = abs($unit->getXPosition() - $targetUnit->getXPosition()) + abs($unit->getYPosition() - $targetUnit->getYPosition());
+
+        if($distance < $unit->getMinRange() && $distance > $unit->getMaxRange()) {
+            throw new InvalidTargetException("Target is not in range (distance: $distance).");
+        }
+
+        $criticalMultiplier = rand(0, 100) < self::CRIT_CHANCE ? self::CRIT_MULTIPLIER : 1;
+
+        $damageAmount = round(
+            $unit->getAttack() *
+            self::TYPE_ATTACK_MODIFIERS[$unit->getUnitType()][$targetUnit->getUnitType()] *
+            $criticalMultiplier -
+            $targetUnit->getDefense()
+        );
+
+        $unit->setCurrentActionPoints($unit->getCurrentActionPoints() - $unit->getAttack());
+        $targetUnit->setHealth($targetUnit->getHealth() - $damageAmount);
 
         $this->objectManager->flush();
     }
