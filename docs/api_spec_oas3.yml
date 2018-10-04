@@ -3,14 +3,14 @@ info:
   version: 0.1.0
   title: Cyber Wars API
 servers:
-  - url: No Production URL yet
+- url: No Production URL yet
 paths:
   /game:
     post:
       summary: Create a game
       operationId: createGame
       tags:
-        - lobby
+      - lobby
       responses:
         '200':
           description: 'The meta information about a game, including map tile data.'
@@ -23,15 +23,15 @@ paths:
       summary: Get a specific game you know the ID for.
       operationId: getGame
       tags:
-        - lobby
+      - lobby
       parameters:
-        - name: gameId
-          in: path
-          description: Which game's ID to retrieve
-          required: true
-          schema:
-            type: string
-            format: uuid
+      - name: gameId
+        in: path
+        description: Which game's ID to retrieve
+        required: true
+        schema:
+          type: string
+          format: uuid
       responses:
         '200':
           description: 'The meta information about a game, including map tile data.'
@@ -46,7 +46,7 @@ paths:
       summary: Add a player to a game
       operationId: addPlayer
       tags:
-        - lobby
+      - lobby
       requestBody:
         content:
           application/json:
@@ -63,41 +63,41 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Player'
-    /player/{playerId}:
-      get:
-        summary: get a player by id
-        operationId: getPlayer
-        tags:
-        - lobby
-        parameters:
-        - name: playerId
-          in: path
-          description: Which player's ID to retrieve
-          required: true
-          schema:
-            type: string
-            format: uuid
-        responses:
-          '200':
-            description: Player information
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Player'
+  /player/{playerId}:
+    get:
+      summary: get a player by id
+      operationId: getPlayer
+      tags:
+      - lobby
+      parameters:
+      - name: playerId
+        in: path
+        description: Which player's ID to retrieve
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Player information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
   '/units/{gameId}':
     get:
       summary: Get units for a game.
       operationId: getUnits
       tags:
-        - game
+      - game
       parameters:
-        - name: gameId
-          in: path
-          description: Which game's units to retrieve
-          required: true
-          schema:
-            type: string
-            format: uuid
+      - name: gameId
+        in: path
+        description: Which game's units to retrieve
+        required: true
+        schema:
+          type: string
+          format: uuid
       responses:
         '200':
           description: Information about units in the current game
@@ -112,15 +112,15 @@ paths:
       summary: Get a specific unit
       operationId: getUnit
       tags:
-        - game
+      - game
       parameters:
-        - name: unitId
-          in: path
-          description: Which unit to retrieve
-          required: true
-          schema:
-            type: string
-            format: uuid
+      - name: unitId
+        in: path
+        description: Which unit to retrieve
+        required: true
+        schema:
+          type: string
+          format: uuid
       responses:
         '200':
           description: Information about a specific unit
@@ -135,7 +135,7 @@ paths:
       summary: Start a turn
       operationId: startTurn
       tags:
-        - turn
+      - turn
       requestBody:
         content:
           application/json:
@@ -161,15 +161,15 @@ paths:
       summary: Update a turn (used to end a turn)
       operationId: updateTurn
       tags:
-        - turn
+      - turn
       parameters:
-        - name: turnId
-          in: path
-          description: Which turn to update.
-          required: true
-          schema:
-            type: string
-            format: uuid
+      - name: turnId
+        in: path
+        description: Which turn to update.
+        required: true
+        schema:
+          type: string
+          format: uuid
       requestBody:
         content:
           application/json:
@@ -197,7 +197,7 @@ paths:
       summary: Take an action as a unit on a turn.
       operationId: createUnitAction
       tags:
-        - turn
+      - turn
       requestBody:
         content:
           application/json:
@@ -218,10 +218,10 @@ components:
   schemas:
     Game:
       required:
-        - id
-        - playerNumber
-        - turnNumber
-        - map
+      - id
+      - playerNumber
+      - turnNumber
+      - map
       type: object
       properties:
         id:
@@ -241,8 +241,8 @@ components:
         map:
           type: object
           required:
-            - id
-            - tiles
+          - id
+          - tiles
           properties:
             id:
               type: string
@@ -253,14 +253,14 @@ components:
               items:
                 type: object
                 required:
-                  - type
-                  - owner
+                - type
+                - owner
                 properties:
                   type:
                     type: string
                     example: concrete
                     enum:
-                      - "concrete"
+                    - "concrete"
                   owner:
                     type: integer
                     format: int32
@@ -269,8 +269,8 @@ components:
     Coordinates:
       type: object
       required:
-        - 'x'
-        - 'y'
+      - 'x'
+      - 'y'
       properties:
         'x':
           type: integer
@@ -285,14 +285,14 @@ components:
     Unit:
       type: object
       required:
-        - id
-        - attack
-        - defense
-        - health
-        - unitType
-        - minRange
-        - maxRange
-        - owner
+      - id
+      - attack
+      - defense
+      - health
+      - unitType
+      - minRange
+      - maxRange
+      - owner
       properties:
         id:
           type: string
@@ -316,9 +316,9 @@ components:
           type: string
           example: magic
           enum:
-            - "magic"
-            - "swords"
-            - "guns"
+          - "magic"
+          - "swords"
+          - "guns"
         minRange:
           type: integer
           format: int32
@@ -354,7 +354,7 @@ components:
     Player:
       type: object
       required:
-        - id
+      - id
       properties:
         id:
           type: string
@@ -362,8 +362,8 @@ components:
     Turn:
       type: object
       required:
-        - id
-        - status
+      - id
+      - status
       properties:
         id:
           type: string
@@ -371,17 +371,17 @@ components:
         status:
           type: string
           enum:
-            - "in-progress"
-            - "turn-complete"
+          - "in-progress"
+          - "turn-complete"
           example: in-progress
     UnitAction:
       type: object
       required:
-        - unitId
-        - turnId
-        - type
-        - status
-        - affectedUnitIds
+      - unitId
+      - turnId
+      - type
+      - status
+      - affectedUnitIds
       properties:
         unitId:
           type: string
@@ -392,14 +392,14 @@ components:
         type:
           type: string
           enum:
-            - "move"
-            - "attack"
+          - "move"
+          - "attack"
           example: move
         status:
           type: string
           enum:
-           - "success"
-           - "failed"
+          - "success"
+          - "failed"
           example: "success"
         affectedUnitIds:
           type: array
@@ -409,9 +409,9 @@ components:
     UnitActionParams:
       type: object
       required:
-        - unitId
-        - turnId
-        - type
+      - unitId
+      - turnId
+      - type
       properties:
         unitId:
           type: string
@@ -422,33 +422,33 @@ components:
         type:
           type: string
           enum:
-            - "move"
-            - "attack"
+          - "move"
+          - "attack"
           example: move
         args:
           oneOf:
-           - $ref: "#/components/schemas/MoveActionArgs"
-           - $ref: "#/components/schemas/AttackActionArgs"
+          - $ref: "#/components/schemas/MoveActionArgs"
+          - $ref: "#/components/schemas/AttackActionArgs"
           description: Varies based on type
           example:
             path:
-             - x: 1
-               y: 2
-             - x: 2
-               y: 2
+            - x: 1
+              y: 2
+            - x: 2
+              y: 2
     MoveActionArgs:
       type: object
       required:
-       - path
+      - path
       properties:
-       path:
-         type: array
-         items:
-           $ref: "#/components/schemas/Coordinates"
+        path:
+          type: array
+          items:
+            $ref: "#/components/schemas/Coordinates"
     AttackActionArgs:
       type: object
       required:
-        - targetUnitId
+      - targetUnitId
       properties:
         targetUnitId:
           type: string
