@@ -63,6 +63,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Player'
+        '403':
+          description: The game is full.
+        '404':
+          description: The game could not be found.
   /player/{playerId}:
     get:
       summary: get a player by id
@@ -152,8 +156,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Turn'
+        '400':
+          description: Unable to end turn until all units have been placed.
         '403':
-          description: It is not your turn.
+          description: Not your turn.
         '404':
           description: The game could not be found.
   '/turns/{turnId}':
@@ -210,6 +216,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UnitAction'
+        '400':
+          description: Invalid action type, or missing/invalid body field.
         '403':
           description: 'It is not your turn, or the unit is out of action points'
         '404':

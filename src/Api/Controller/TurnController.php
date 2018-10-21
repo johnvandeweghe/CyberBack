@@ -78,7 +78,7 @@ class TurnController
         } catch (OutOfTurnException $e) {
             return new Response("Not your turn", Response::HTTP_FORBIDDEN);
         } catch (UnplacedUnitsException $e) {
-            return new Response("Not your turn", Response::HTTP_BAD_REQUEST);
+            return new Response("Unable to end turn until all units have been placed", Response::HTTP_BAD_REQUEST);
         }
 
         return new Response(json_encode([
@@ -130,7 +130,7 @@ class TurnController
                 case Manager::UNIT_ACTION_ATTACK:
                     $targetUnit = $this->manager->getUnit($args["targetUnitId"]);
                     if(!$targetUnit) {
-                        return new Response("Target uit not found", Response::HTTP_NOT_FOUND);
+                        return new Response("Target unit not found", Response::HTTP_NOT_FOUND);
                     }
                     $this->manager->attackUnit($turn, $unit, $targetUnit);
                     $affectedUnitIds = [
@@ -139,7 +139,7 @@ class TurnController
                     ];
                     break;
                 default:
-                    return new Response("Unknown Type", Response::HTTP_NOT_FOUND);
+                    return new Response("Unknown Type, but that should have already been checked...", Response::HTTP_INTERNAL_SERVER_ERROR);
             }
 
             return new Response(json_encode([
