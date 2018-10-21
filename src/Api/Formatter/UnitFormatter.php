@@ -37,6 +37,7 @@ class UnitFormatter
             "unitType" => $unit->getUnitType(),
             "minRange" => $unit->getMinRange(),
             "maxRange" => $unit->getMaxRange(),
+            "speed" => $unit->getSpeed(),
             "maxAP" => $unit->getMaxActionPoints(),
             "currentAP" => $unit->getCurrentActionPoints(),
             "apRegen" => $unit->getActionPointRegenRate(),
