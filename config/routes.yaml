@@ -2,7 +2,10 @@ index:
     path: /
     controller: App\Api\Controller\DefaultController::index
 
-
+getMaps:
+    path: /maps
+    controller: App\Api\Controller\LobbyController::getMaps
+    methods: [GET]
 createGame:
     path: /game
     controller: App\Api\Controller\LobbyController::createGame
