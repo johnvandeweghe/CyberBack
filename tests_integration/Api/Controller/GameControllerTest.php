@@ -9,7 +9,7 @@ class GameControllerTest extends WebTestCase
     {
         $client = self::createClient();
 
-        $client->request("POST", "/game");
+        $client->request("POST", "/game", [], [], ["CONTENT_TYPE" => "application/json"], json_encode(["mapId" => "AE7E7566-5105-47DD-8438-3BEF9524A1AC"]));
         $gameData = json_decode($client->getResponse()->getContent(), true);
         $client->request("POST", "/player", [], [], ["CONTENT_TYPE" => "application/json"], json_encode(["gameId" => $gameData["id"]]));
         $client->request("GET", "/units/{$gameData["id"]}");

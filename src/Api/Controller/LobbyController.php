@@ -1,6 +1,7 @@
 <?php
 namespace App\Api\Controller;
 
+use App\Api\Formatter\MapFormatter;
 use App\Game\Exception\GameFullException;
 use App\Game\Exception\UnableToJoinGameException;
 use App\Game\ManagerInterface;
@@ -25,9 +26,28 @@ class LobbyController
         $this->manager = $manager;
     }
 
-    public function createGame(GameFormatter $gameFormatter): Response
+    public function getMaps(MapFormatter $mapFormatter): Response
     {
-        $game = $this->manager->startGame(2);
+        $maps = $this->manager->getMaps();
+
+        return new Response($mapFormatter->formatMultiple($maps));
+    }
+
+    public function createGame(Request $request, GameFormatter $gameFormatter): Response
+    {
+        $body = json_decode($request->getContent(), true);
+
+        if(!$body || !isset($body['mapId'])) {
+            return new Response("Missing mapId field", 400);
+        }
+
+        $map = $this->manager->getMap($body['mapId']);
+
+        if(!$map) {
+            return new Response("Map not found", 404);
+        }
+
+        $game = $this->manager->startGame($map);
 
         return new Response($gameFormatter->format($game));
     }

@@ -32,3 +32,6 @@ services:
     App\Game\MapData\MapDataRetriever:
         arguments:
             $mapAssetsDir: '%env(MAP_ASSETS_DIR)%'
+
+    GuzzleHttp\Client:
+

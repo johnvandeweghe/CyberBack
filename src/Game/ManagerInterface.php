@@ -9,6 +9,7 @@ use App\Game\Exception\OutOfTurnException;
 use App\Game\Exception\UnableToJoinGameException;
 use App\Game\Exception\UnplacedUnitsException;
 use App\Orm\Entity\Game;
+use App\Orm\Entity\Map;
 use App\Orm\Entity\Player;
 use App\Orm\Entity\Turn;
 use App\Orm\Entity\Unit;
@@ -16,10 +17,21 @@ use App\Orm\Entity\Unit;
 interface ManagerInterface
 {
     /**
-     * @param int $numberOfPlayers
+     * @return Map[]
+     */
+    public function getMaps(): array;
+
+    /**
+     * @param string $mapId
+     * @return null|Map
+     */
+    public function getMap(string $mapId): ?Map;
+
+    /**
+     * @param Map $map
      * @return Game
      */
-    public function startGame(int $numberOfPlayers): Game;
+    public function startGame(Map $map): Game;
 
     /**
      * @param string $gameId

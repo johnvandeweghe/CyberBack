@@ -1,6 +1,7 @@
 <?php
 namespace App\Game;
 
+use App\Api\LobbyManagerNotifier;
 use App\Game\Exception\GameFullException;
 use App\Game\Exception\InsufficientActionPointsException;
 use App\Game\Exception\InvalidPathException;
@@ -11,6 +12,7 @@ use App\Game\Exception\UnplacedUnitsException;
 use App\Game\MapData\MapDataRetriever;
 use App\Game\MapData\UnitInitializer;
 use App\Orm\Entity\Game;
+use App\Orm\Entity\Map;
 use App\Orm\Entity\Player;
 use App\Orm\Entity\Turn;
 use App\Orm\Entity\Unit;
@@ -93,6 +95,10 @@ class Manager implements ManagerInterface
      * @var MovementManager
      */
     private $movementManager;
+    /**
+     * @var LobbyManagerNotifier
+     */
+    private $lobbyManagerNotifier;
 
     /**
      * Manager constructor.
@@ -103,6 +109,7 @@ class Manager implements ManagerInterface
      * @param PlayerRepository $playerRepository
      * @param UnitRepository $unitRepository
      * @param Pusher $pusher
+     * @param LobbyManagerNotifier $lobbyManagerNotifier
      * @param MapDataRetriever $mapDataRetriever
      * @param MovementManager $movementManager
      * @param LoggerInterface $logger
@@ -115,6 +122,7 @@ class Manager implements ManagerInterface
         PlayerRepository $playerRepository,
         UnitRepository $unitRepository,
         Pusher $pusher,
+        LobbyManagerNotifier $lobbyManagerNotifier,
         MapDataRetriever $mapDataRetriever,
         MovementManager $movementManager,
         LoggerInterface $logger
@@ -126,6 +134,7 @@ class Manager implements ManagerInterface
         $this->turnRepository = $turnRepository;
         $this->playerRepository = $playerRepository;
         $this->pusher = $pusher;
+        $this->lobbyManagerNotifier = $lobbyManagerNotifier;
         $this->mapDataRetriever = $mapDataRetriever;
         $this->logger = $logger;
         $this->unitRepository = $unitRepository;
@@ -133,16 +142,38 @@ class Manager implements ManagerInterface
     }
 
     /**
-     * @param int $numberOfPlayers
+     * @return Map[]
+     */
+    public function getMaps(): array
+    {
+        return $this->mapRepository->findAll();
+    }
+
+    /**
+     * @param string $mapId
+     * @return null|Map
+     */
+    public function getMap(string $mapId): ?Map
+    {
+        return $this->mapRepository->find($mapId);
+    }
+
+    /**
+     * @param Map $map
      * @return Game
      */
-    public function startGame(int $numberOfPlayers): Game
+    public function startGame(Map $map): Game
     {
-        $map = $this->mapRepository->chooseRandomMap(2);
         $game = new Game($map);
 
         $this->objectManager->persist($game);
         $this->objectManager->flush();
+
+        try {
+            $this->lobbyManagerNotifier->notifyLobbyManager($game);
+        } catch (\RuntimeException $exception) {
+            $this->logger->error("Exception while lobby notification: " . $exception->getMessage());
+        }
 
         return $game;
     }
