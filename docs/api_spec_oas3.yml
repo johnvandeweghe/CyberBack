@@ -57,7 +57,8 @@ paths:
                 required: true
                 content:
                   application/json:
-                    $ref: '#/components/schemas/Game'
+                    schema:
+                        $ref: '#/components/schemas/Game'
   '/game/{gameId}':
     get:
       summary: Get a specific game you know the ID for.
